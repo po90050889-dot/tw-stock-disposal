@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台股每日處置股</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --bg-card: #171a21;
+    --bg-row: #1b1f27;
+    --bg-row-alt: #1f232c;
+    --border: #2a2f3a;
+    --text: #e6e8ec;
+    --text-dim: #9aa1ad;
+    --accent: #4da3ff;
+    --badge-listed: #2f7de1;
+    --badge-otc: #b5691e;
+    --danger: #e0555e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 48px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height: 1.5;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  header .meta { color: var(--text-dim); font-size: 0.9rem; margin: 0 0 20px; }
+
+  .errors {
+    background: rgba(224, 85, 94, 0.12);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+  }
+  .errors p { margin: 2px 0; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+  .stat-card .label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  thead th {
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #14171d;
+  }
+  tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .badge-listed { background: var(--badge-listed); }
+  .badge-otc { background: var(--badge-otc); }
+
+  .code { font-variant-numeric: tabular-nums; color: var(--text-dim); }
+
+  details summary {
+    cursor: pointer;
+    color: var(--accent);
+    list-style: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: "▸ ";
+  }
+  details[open] summary::before {
+    content: "▾ ";
+  }
+  details .full-reason {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #10131a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    white-space: normal;
+  }
+
+  .empty-row td {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 32px 14px;
+  }
+
+  footer {
+    margin-top: 24px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 10px 6px; }
+    .stat-card .num { font-size: 1.3rem; }
+    .stat-card .label { font-size: 0.72rem; }
+
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 4px 0;
+    }
+    tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+    tbody td {
+      border-bottom: none;
+      padding: 8px 14px;
+      display: flex;
+      gap: 8px;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      flex: 0 0 88px;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      padding-top: 2px;
+    }
+    .empty-row td { display: block; }
+    .empty-row td::before { content: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>台股每日處置股</h1>
+    <p class="meta">產出時間：2026-08-09 14:18:45 CST（Asia/Taipei）　資料來源：TWSE 上市、TPEx 上櫃公開 API</p>
+  </header>
+
+  
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">42</div>
+      <div class="label">今日處置股總數</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">15</div>
+      <div class="label">上市檔數</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">27</div>
+      <div class="label">上櫃檔數</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>市場</th>
+        <th>代號</th>
+        <th>名稱</th>
+        <th>處置期間</th>
+        <th>處置原因</th>
+        <th>處置措施</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">039038</td>
+          <td data-label="名稱">富鼎統一6A購01</td>
+          <td data-label="處置期間">2026/08/07 ～ 2026/08/20</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月七日起至一百十五年八月二十日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+＊本有價證券若處置期間屆一百十五年八月十日本公司公布或通知注意交易資訊暨處置作業要點第六條第二至第四項新規定實施日，修正其處置至一百十五年八月十三日止（如遇休市、有價證券停止買賣、全日暫停交易則順延執行），並自一百十五年八月十日起調整其人工管制之撮合終端機執行撮合作業（改以約每二分鐘撮合一次）。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">039457</td>
+          <td data-label="名稱">宏達電統一6A購02</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月三日起至一百十五年八月十四日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">053859</td>
+          <td data-label="名稱">強茂統一61購02</td>
+          <td data-label="處置期間">2026/08/06 ～ 2026/08/19</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月六日起至一百十五年八月十九日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+＊本有價證券若處置期間屆一百十五年八月十日本公司公布或通知注意交易資訊暨處置作業要點第六條第二至第四項新規定實施日，修正其處置至一百十五年八月十二日止（如遇休市、有價證券停止買賣、全日暫停交易則順延執行），並自一百十五年八月十日起調整其人工管制之撮合終端機執行撮合作業（改以約每二分鐘撮合一次）。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">057808</td>
+          <td data-label="名稱">國巨凱基59購05</td>
+          <td data-label="處置期間">2026/07/29 ～ 2026/08/11</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年七月二十九日起至一百十五年八月十一日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">068822</td>
+          <td data-label="名稱">富鼎統一69購01</td>
+          <td data-label="處置期間">2026/08/07 ～ 2026/08/20</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月七日起至一百十五年八月二十日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+＊本有價證券若處置期間屆一百十五年八月十日本公司公布或通知注意交易資訊暨處置作業要點第六條第二至第四項新規定實施日，修正其處置至一百十五年八月十三日止（如遇休市、有價證券停止買賣、全日暫停交易則順延執行），並自一百十五年八月十日起調整其人工管制之撮合終端機執行撮合作業（改以約每二分鐘撮合一次）。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">1515</td>
+          <td data-label="名稱">力山</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準，且該股票於最近三十個營業日內曾發布處置交易資訊。&lt;br&gt;
+２處置期間：自民國一百十五年七月三十一日起至一百十五年八月十三日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每二十分鐘撮合一次）。&lt;br&gt;
+ｂ所有投資人每日委託買賣該有價證券時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第二次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">3026</td>
+          <td data-label="名稱">禾伸堂</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準，且該股票於最近三十個營業日內曾發布處置交易資訊。&lt;br&gt;
+２處置期間：自民國一百十五年八月三日起至一百十五年八月十四日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每二十分鐘撮合一次）。&lt;br&gt;
+ｂ所有投資人每日委託買賣該有價證券時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第二次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">3055</td>
+          <td data-label="名稱">蔚華科</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準，且該股票於最近三十個營業日內曾發布處置交易資訊。&lt;br&gt;
+２處置期間：自民國一百十五年七月三十一日起至一百十五年八月十三日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每二十分鐘撮合一次）。&lt;br&gt;
+ｂ所有投資人每日委託買賣該有價證券時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第二次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">3167</td>
+          <td data-label="名稱">大量</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準，且該股票於最近三十個營業日內曾發布處置交易資訊。&lt;br&gt;
+２處置期間：自民國一百十五年七月三十一日起至一百十五年八月十三日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每二十分鐘撮合一次）。&lt;br&gt;
+ｂ所有投資人每日委託買賣該有價證券時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第二次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">3532</td>
+          <td data-label="名稱">台勝科</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準，且該股票於最近三十個營業日內曾發布處置交易資訊。&lt;br&gt;
+２處置期間：自民國一百十五年七月三十一日起至一百十五年八月十三日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每二十分鐘撮合一次）。&lt;br&gt;
+ｂ所有投資人每日委託買賣該有價證券時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第二次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">4169</td>
+          <td data-label="名稱">泰宗</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月三日起至一百十五年八月十四日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">6531</td>
+          <td data-label="名稱">愛普*</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月三日起至一百十五年八月十四日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">6969</td>
+          <td data-label="名稱">成信實業*-創</td>
+          <td data-label="處置期間">2026/07/28 ～ 2026/08/10</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年七月二十八日起至一百十五年八月十日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">7610</td>
+          <td data-label="名稱">聯友金屬-創</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/12</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日達本公司「公布注意交易資訊」標準，且該股票於最近三十個營業日內曾發布處置交易資訊。&lt;br&gt;
+２處置期間：自民國一百十五年七月三十日起至一百十五年八月十二日﹝十個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每二十分鐘撮合一次）。&lt;br&gt;
+ｂ所有投資人每日委託買賣該有價證券時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第二次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-listed">上市</span>
+            
+          </td>
+          <td data-label="代號" class="code">8046</td>
+          <td data-label="名稱">南電</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/18</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續三次及當日沖銷標準</summary>
+              <div class="full-reason">１處置原因：該有價證券之交易，連續三個營業日及當日沖銷量百分比達本公司「公布注意交易資訊」標準。&lt;br&gt;
+２處置期間：自民國一百十五年八月三日起至一百十五年八月十八日﹝十二個營業日，如遇：ａ有價證券最後交易日在處置期間，僅處置至最後交易日，ｂ有價證券停止買賣、全日暫停交易則順延執行，ｃ開休市日變動則調整處置迄日〕。&lt;br&gt;
+３處置措施：&lt;br&gt;
+ａ以人工管制之撮合終端機執行撮合作業（約每五分鐘撮合一次）。&lt;br&gt;
+ｂ投資人每日委託買賣該有價證券數量單筆達十交易單位或多筆累積達三十交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。&lt;br&gt;
+ｃ信用交易部分，應收足融資自備款或融券保證金。有關信用交易了結部分，則依相關規定辦理。&lt;br&gt;
+</div>
+            </details>
+          </td>
+          <td data-label="處置措施">第一次處置</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">23511</td>
+          <td data-label="名稱">順德一</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/12</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">順德工業股份有限公司國內第一次無擔保轉換公司債(代號：23511)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月30日起10個營業日(115年7月30日至115年8月12日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">31672</td>
+          <td data-label="名稱">大量二</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>轉(交)換公司債之標的證券經本中心或臺灣證券交易所發布處置</summary>
+              <div class="full-reason">上市公司大量科技股份有限公司股票(代號：3167)經臺灣證券交易所股份有限公司發布第二次處置，依本中心「櫃檯買賣公布或通知注意交易資訊暨處置作業要點」第六條規定，爰自115年7月31日起10個營業日(115年7月31日至115年8月13日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)對大量科技股份有限公司國內第二次無擔保轉換公司債（代號：31672）改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">3362</td>
+          <td data-label="名稱">先進光</td>
+          <td data-label="處置期間">2026/08/05 ～ 2026/08/20</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續5個營業日及沖銷標準</summary>
+              <div class="full-reason">先進光電科技股份有限公司股票(代號：3362)因連續5個營業日經本中心公布注意交易資訊，且最近5個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年8月5日起12個營業日(115年8月5日至115年8月20日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。惟其處置期間屆115年8月10日本中心作業要點第六條第二至第四項新規定實施日，爰修正其處置至115年8月13日止(如遇休市、有價證券停止買賣、全日暫停交易則順延執行)，並自115年8月10日起調整其人工管制之撮合終端機執行撮合作業(改以約每2分鐘撮合一次)。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">33621</td>
+          <td data-label="名稱">先進光一</td>
+          <td data-label="處置期間">2026/08/05 ～ 2026/08/20</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>轉(交)換公司債之標的證券經本中心或臺灣證券交易所發布處置</summary>
+              <div class="full-reason">先進光電科技股份有限公司股票(代號：3362)因連續5個營業日經本中心公布注意交易資訊，且最近5個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年8月5日起12個營業日(115年8月5日至115年8月20日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)對先進光電科技股份有限公司國內第一次有擔保轉換公司債（代號：33621）改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。惟其處置期間屆115年8月10日本中心作業要點第六條第二至第四項新規定實施日，爰修正其處置至115年8月13日止(如遇休市、有價證券停止買賣、全日暫停交易則順延執行)，並自115年8月10日起調整其人工管制之撮合終端機執行撮合作業(改以約每2分鐘撮合一次)。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">3624</td>
+          <td data-label="名稱">光頡</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">光頡科技股份有限公司股票(代號：3624)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月3日起10個營業日(115年8月3日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">45421</td>
+          <td data-label="名稱">科嶠一</td>
+          <td data-label="處置期間">2026/08/05 ～ 2026/08/18</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">科嶠工業股份有限公司國內第一次無擔保轉換公司債(代號：45421)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月5日起10個營業日(115年8月5日至115年8月18日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。惟其處置期間屆115年8月10日本中心作業要點第六條第二至第四項新規定實施日，爰修正其處置至115年8月11日止(如遇休市、有價證券停止買賣、全日暫停交易則順延執行)，並自115年8月10日起調整其人工管制之撮合終端機執行撮合作業(改以約每2分鐘撮合一次)。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">45421</td>
+          <td data-label="名稱">科嶠一</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">科嶠工業股份有限公司國內第一次無擔保轉換公司債(代號：45421)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月31日起10個營業日(115年7月31日至115年8月13日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">4556</td>
+          <td data-label="名稱">旭然</td>
+          <td data-label="處置期間">2026/08/04 ～ 2026/08/17</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">旭然國際股份有限公司股票(代號：4556)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月4日起10個營業日(115年8月4日至115年8月17日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。惟若處置期間屆115年8月10日本中心作業要點第六條第二至第四項新規定實施日，修正其處置至115年8月10日止(如遇休市、有價證券停止買賣、全日暫停交易則順延執行)，並自115年8月10日起調整其人工管制之撮合終端機執行撮合作業(改以約每2分鐘撮合一次)。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">4979</td>
+          <td data-label="名稱">華星光</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續5個營業日及沖銷標準</summary>
+              <div class="full-reason">華星光通科技股份有限公司股票(代號：4979)因連續5個營業日經本中心公布注意交易資訊，且最近5個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年7月30日起12個營業日(115年7月30日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">49793</td>
+          <td data-label="名稱">華星光三</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>轉(交)換公司債之標的證券經本中心或臺灣證券交易所發布處置</summary>
+              <div class="full-reason">華星光通科技股份有限公司股票(代號：4979)因連續5個營業日經本中心公布注意交易資訊，且最近5個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年7月30日起12個營業日(115年7月30日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)對華星光通科技股份有限公司國內第三次無擔保轉換公司債（代號：49793）改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">49794</td>
+          <td data-label="名稱">華星光四</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>轉(交)換公司債之標的證券經本中心或臺灣證券交易所發布處置</summary>
+              <div class="full-reason">華星光通科技股份有限公司股票(代號：4979)因連續5個營業日經本中心公布注意交易資訊，且最近5個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年7月30日起12個營業日(115年7月30日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)對華星光通科技股份有限公司國內第四次無擔保轉換公司債（代號：49794）改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">4991</td>
+          <td data-label="名稱">環宇-KY</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續5個營業日及沖銷標準</summary>
+              <div class="full-reason">環宇通訊半導體控股股份有限公司股票(代號：4991)最近30個營業日內曾發布處置，又因連續5個營業日經本中心公布注意交易資訊，且最近5個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年7月30日起12個營業日(115年7月30日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">6182</td>
+          <td data-label="名稱">合晶</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">合晶科技股份有限公司股票(代號：6182)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月3日起10個營業日(115年8月3日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">6182</td>
+          <td data-label="名稱">合晶</td>
+          <td data-label="處置期間">2026/07/24 ～ 2026/08/10</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續3個營業日及沖銷標準</summary>
+              <div class="full-reason">合晶科技股份有限公司股票(代號：6182)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，且最近3個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年7月24日起12個營業日(115年7月24日至115年8月10日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">61827</td>
+          <td data-label="名稱">合晶七</td>
+          <td data-label="處置期間">2026/07/24 ～ 2026/08/10</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>轉(交)換公司債之標的證券經本中心或臺灣證券交易所發布處置</summary>
+              <div class="full-reason">合晶科技股份有限公司股票(代號：6182)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，且最近3個營業日曾達本中心作業要點第四條第一項第十三款經本中心公布注意交易資訊，爰自115年7月24日起12個營業日(115年7月24日至115年8月10日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)對合晶科技股份有限公司國內第七次無擔保轉換公司債（代號：61827）改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">61828</td>
+          <td data-label="名稱">合晶八</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">合晶科技股份有限公司國內第八次無擔保轉換公司債(代號：61828)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月3日起10個營業日(115年8月3日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">61828</td>
+          <td data-label="名稱">合晶八</td>
+          <td data-label="處置期間">2026/07/29 ～ 2026/08/11</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">合晶科技股份有限公司國內第八次無擔保轉換公司債(代號：61828)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月29日起10個營業日(115年7月29日至115年8月11日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">61828</td>
+          <td data-label="名稱">合晶八</td>
+          <td data-label="處置期間">2026/07/24 ～ 2026/08/10</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>連續3個營業日及沖銷標準</summary>
+              <div class="full-reason">合晶科技股份有限公司國內第八次無擔保轉換公司債(代號：61828)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月24日起10個營業日(115年7月24日至115年8月6日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限；惟其標的股票同時經本中心發布處置，該轉換公司債併同採行處置措施至115年8月10日，爰115年8月7日至115年8月10日(如遇休市、有價證券停止買賣、全日暫停交易則順延執行)續以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">6217</td>
+          <td data-label="名稱">中探針</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">中國探針股份有限公司股票(代號：6217)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月31日起10個營業日(115年7月31日至115年8月13日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">6217</td>
+          <td data-label="名稱">中探針</td>
+          <td data-label="處置期間">2026/07/28 ～ 2026/08/10</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">中國探針股份有限公司股票(代號：6217)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月28日起10個營業日(115年7月28日至115年8月10日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">6739</td>
+          <td data-label="名稱">竹陞科技</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">竹陞科技股份有限公司股票(代號：6739)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月3日起10個營業日(115年8月3日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。信用交易部分，則收足融資自備款或融券保證金。但信用交易了結及違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">729185</td>
+          <td data-label="名稱">華星光統一59購03</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">華星光統一59購03權證(代號：729185)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月31日起10個營業日(115年7月31日至115年8月13日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">736244</td>
+          <td data-label="名稱">金居統一61購01</td>
+          <td data-label="處置期間">2026/07/29 ～ 2026/08/11</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">金居統一61購01權證(代號：736244)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月29日起10個營業日(115年7月29日至115年8月11日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">76101</td>
+          <td data-label="名稱">聯友金屬一創</td>
+          <td data-label="處置期間">2026/07/31 ～ 2026/08/13</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">聯友金屬科技股份有限公司國內第一次無擔保轉換公司債(代號：76101)最近30個營業日內曾發布處置，又因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月31日起10個營業日(115年7月31日至115年8月13日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">76101</td>
+          <td data-label="名稱">聯友金屬一創</td>
+          <td data-label="處置期間">2026/07/30 ～ 2026/08/12</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>轉(交)換公司債之標的證券經本中心或臺灣證券交易所發布處置</summary>
+              <div class="full-reason">上市公司聯友金屬科技股份有限公司股票(代號：7610)經臺灣證券交易所股份有限公司發布第二次處置，依本中心「櫃檯買賣公布或通知注意交易資訊暨處置作業要點」第六條規定，爰自115年7月30日起10個營業日(115年7月30日至115年8月12日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)對聯友金屬科技股份有限公司國內第一次無擔保轉換公司債（代號：76101）改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">76101</td>
+          <td data-label="名稱">聯友金屬一創</td>
+          <td data-label="處置期間">2026/07/28 ～ 2026/08/10</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">聯友金屬科技股份有限公司國內第一次無擔保轉換公司債(代號：76101)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年7月28日起10個營業日(115年7月28日至115年8月10日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券；惟其標的股票前經臺灣證券交易所股份有限公司發布第二次處置，該轉換公司債已併同採行處置措施，其中115年7月28日至115年8月7日(如遇休市、有價證券停止買賣、全日暫停交易則順延執行)仍應改以人工管制之撮合終端機執行撮合作業(約每20分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+        <tr>
+          <td data-label="市場">
+            
+            <span class="badge badge-otc">上櫃</span>
+            
+          </td>
+          <td data-label="代號" class="code">7828</td>
+          <td data-label="名稱">創新服務</td>
+          <td data-label="處置期間">2026/08/03 ～ 2026/08/14</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>因連續3個營業日達本中心作業要點第四條第一項第一款</summary>
+              <div class="full-reason">創新服務股份有限公司股票(代號：7828)因連續3個營業日達本中心作業要點第四條第一項第一款經本中心公布注意交易資訊，爰自115年8月3日起10個營業日(115年8月3日至115年8月14日，如遇休市、有價證券停止買賣、全日暫停交易則順延執行)改以人工管制之撮合終端機執行撮合作業(約每5分鐘撮合一次)，各證券商於投資人每日委託買賣該有價證券數量單筆達10交易單位或多筆累積達30交易單位以上時，應就其當日已委託之買賣，向該投資人收取全部之買進價金或賣出證券。但違約專戶委託買賣該有價證券時，不在此限。</div>
+            </details>
+          </td>
+          <td data-label="處置措施">—</td>
+        </tr>
+        
+      
+    </tbody>
+  </table>
+
+  <footer>
+    <p>原始資料來源：
+      <a href="https://openapi.twse.com.tw/v1/announcement/punish" target="_blank" rel="noopener">TWSE 上市處置股 API</a>　|
+      <a href="https://www.tpex.org.tw/openapi/v1/tpex_disposal_information" target="_blank" rel="noopener">TPEx 上櫃處置股 API</a>
+    </p>
+  </footer>
+</div>
+</body>
+</html>

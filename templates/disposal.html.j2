@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台股每日處置股</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --bg-card: #171a21;
+    --bg-row: #1b1f27;
+    --bg-row-alt: #1f232c;
+    --border: #2a2f3a;
+    --text: #e6e8ec;
+    --text-dim: #9aa1ad;
+    --accent: #4da3ff;
+    --badge-listed: #2f7de1;
+    --badge-otc: #b5691e;
+    --danger: #e0555e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 48px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height: 1.5;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  header .meta { color: var(--text-dim); font-size: 0.9rem; margin: 0 0 20px; }
+
+  .errors {
+    background: rgba(224, 85, 94, 0.12);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+  }
+  .errors p { margin: 2px 0; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+  .stat-card .label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  thead th {
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #14171d;
+  }
+  tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .badge-listed { background: var(--badge-listed); }
+  .badge-otc { background: var(--badge-otc); }
+
+  .code { font-variant-numeric: tabular-nums; color: var(--text-dim); }
+
+  details summary {
+    cursor: pointer;
+    color: var(--accent);
+    list-style: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: "▸ ";
+  }
+  details[open] summary::before {
+    content: "▾ ";
+  }
+  details .full-reason {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #10131a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    white-space: normal;
+  }
+
+  .empty-row td {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 32px 14px;
+  }
+
+  footer {
+    margin-top: 24px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 10px 6px; }
+    .stat-card .num { font-size: 1.3rem; }
+    .stat-card .label { font-size: 0.72rem; }
+
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 4px 0;
+    }
+    tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+    tbody td {
+      border-bottom: none;
+      padding: 8px 14px;
+      display: flex;
+      gap: 8px;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      flex: 0 0 88px;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      padding-top: 2px;
+    }
+    .empty-row td { display: block; }
+    .empty-row td::before { content: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>台股每日處置股</h1>
+    <p class="meta">產出時間：{{ generated_at }}（Asia/Taipei）　資料來源：TWSE 上市、TPEx 上櫃公開 API</p>
+  </header>
+
+  {% if errors %}
+  <div class="errors">
+    {% for err in errors %}
+    <p>⚠ {{ err }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">{{ total_count }}</div>
+      <div class="label">今日處置股總數</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ listed_count }}</div>
+      <div class="label">上市檔數</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ otc_count }}</div>
+      <div class="label">上櫃檔數</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>市場</th>
+        <th>代號</th>
+        <th>名稱</th>
+        <th>處置期間</th>
+        <th>處置原因</th>
+        <th>處置措施</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if records %}
+        {% for r in records %}
+        <tr>
+          <td data-label="市場">
+            {% if r.market == "上市" %}
+            <span class="badge badge-listed">上市</span>
+            {% else %}
+            <span class="badge badge-otc">上櫃</span>
+            {% endif %}
+          </td>
+          <td data-label="代號" class="code">{{ r.code }}</td>
+          <td data-label="名稱">{{ r.name }}</td>
+          <td data-label="處置期間">{{ r.period_display }}</td>
+          <td data-label="處置原因">
+            <details>
+              <summary>{{ r.reason_short }}</summary>
+              <div class="full-reason">{{ r.reason_full | nl2br }}</div>
+            </details>
+          </td>
+          <td data-label="處置措施">{{ r.measures or "—" }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr class="empty-row"><td colspan="6">今日無處置股資料</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <footer>
+    <p>原始資料來源：
+      <a href="https://openapi.twse.com.tw/v1/announcement/punish" target="_blank" rel="noopener">TWSE 上市處置股 API</a>　|
+      <a href="https://www.tpex.org.tw/openapi/v1/tpex_disposal_information" target="_blank" rel="noopener">TPEx 上櫃處置股 API</a>
+    </p>
+  </footer>
+</div>
+</body>
+</html>

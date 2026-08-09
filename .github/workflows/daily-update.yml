@@ -1,0 +1,33 @@
+name: Daily Update Disposal Page
+
+on:
+  schedule:
+    - cron: "0 10 * * 1-5"   # UTC 10:00 = 台灣時間 18:00，週一到週五
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate disposal.html
+        run: python fetch_and_render.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/disposal.html
+          git diff --cached --quiet || git commit -m "chore: update disposal.html $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
