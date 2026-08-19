@@ -143,29 +143,22 @@ docker compose --profile web up -d webserver
 奇摩股市固定同時給 `.TW`／`.TWO` 兩個連結。
 
 **技術限制與取捨**：這是純靜態頁面，沒有自己的後端伺服器；而 Google 新聞 RSS 不允許瀏覽器
-直接跨網域讀取內容（沒有 CORS header）。有兩層代理可以解決這個問題，`fetch_and_render.py`
-的 `NEWS_PROXY_BASE_URL` 決定要用哪一個：
+直接跨網域讀取內容（沒有 CORS header）。`fetch_and_render.py` 的 `NEWS_PROXY_BASE_URL`
+決定新聞標題怎麼讀：
 
-- **本機 nginx**（`nginx.conf` 的 `/api/news`）：只有透過
-  `docker compose --profile web up webserver` 開啟的網頁伺服器瀏覽時才會顯示；直接雙擊開啟
-  `output/disposal.html` 檔案，或透過 GitHub Pages 瀏覽，`fetch()` 都會失敗。
-- **Cloudflare Worker**（`cloudflare-worker/news-proxy.js`，部署步驟見檔案內註解）：把
-  `NEWS_PROXY_BASE_URL` 設成部署好的 Worker 網址（例如
-  `https://tw-stock-news-proxy.<你的帳號>.workers.dev`）之後，本機、GitHub Pages 都能用。
-
-不論用哪種代理，**新聞標題功能都有已知的不穩定性，接受度因人而異，先說明清楚**：
-
-- Google 會把來自雲端代管服務（例如 Cloudflare Workers 的共用 IP）的請求判定為「自動化
-  查詢」而不定期擋掉（回傳 503），擋多久、多頻繁不受我們控制，實測時發現同一個代號有時候
-  成功、幾分鐘內重複查詢又會被擋。本機 nginx 因為用的是你自己的網路 IP，被擋的機率通常
-  低很多，但也不是完全不會發生。
-- 頁面已經做了防呆：查不到標題時（不管是代理沒設定、fetch 失敗、還是被 Google 擋）都會
-  自動退回顯示下方的查詢連結卡片（Google 新聞搜尋、Yahoo 奇摩股市、Goodinfo），使用者
-  還是找得到新聞，只是要多點一次連結，不會整頁掛掉或顯示錯誤畫面。
-- Worker 程式碼刻意**不快取任何回應**（`Cache-Control: no-store`）：早期版本用了
-  `cf.cacheEverything`，若剛好某次被 Google 擋下，那個錯誤回應會被 Cloudflare 邊緣快取
-  住，接下來幾分鐘同樣的查詢都會拿到快取的錯誤，看起來像「一直壞掉」，因此拿掉快取、
-  改成失敗時在 Worker 內重試一次。
+- **目前預設：留空**，網頁改用相對路徑 `/api/news`，只有 `nginx.conf` 有代理這個路徑，也就
+  是只有透過 `docker compose --profile web up webserver` 開啟本機網頁伺服器瀏覽時才會顯示
+  真新聞標題；直接雙擊開啟 `output/disposal.html` 檔案、或透過 GitHub Pages 瀏覽，都只會
+  顯示下方的查詢連結卡片。這是**刻意的取捨**：本機 nginx 用的是你自己的網路 IP，實測穩定
+  不會被擋。
+- **曾經試過的替代方案：Cloudflare Worker**（程式碼還在 `cloudflare-worker/news-proxy.js`，
+  部署步驟見檔案內註解）：把 `NEWS_PROXY_BASE_URL` 設成部署好的 Worker 網址，本機、GitHub
+  Pages 都能讀到新聞標題——但**已知會不穩定**：Google 會把來自 Cloudflare Workers 共用 IP
+  的請求判定為「自動化查詢」而不定期擋掉（503），擋多久、多頻繁不受控制，實測同一個代號
+  有時候成功、幾分鐘內重複查詢又被擋。因為這個不穩定性連本機也一起被拖累，已經改回預設
+  留空；如果之後想再試，把 Worker 網址填回 `NEWS_PROXY_BASE_URL` 即可，不需要重新部署。
+- 不論哪種情況，頁面都有防呆：查不到標題時都會自動退回顯示下方的查詢連結卡片（Google
+  新聞搜尋、Yahoo 奇摩股市、Goodinfo），不會整頁掛掉或顯示錯誤畫面。
 - Google 新聞 RSS 的版權聲明註明「僅供個人非商業用途的 feed reader 使用」；這裡是把它用在
   個人本機專案的網頁分頁上，非商業、非大量重新散布，但嚴格來說不完全等同「個人 feed
   reader」，使用前請自行評估是否符合你的使用情境。

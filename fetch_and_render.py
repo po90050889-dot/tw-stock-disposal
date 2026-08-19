@@ -31,9 +31,14 @@ TPEX_MATERIAL_URL = "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O"
 
 # 「股票新聞查詢」分頁讀真實新聞標題用的 CORS 代理（見 cloudflare-worker/news-proxy.js）。
 # 留空的話，網頁會改用相對路徑 /api/news（只有本機 nginx 有代理這個路徑，GitHub Pages
-# 沒有伺服器、一定失敗，會自動退回顯示查詢連結）。部署好 Cloudflare Worker 後把網址填在這裡，
-# 例如 "https://tw-stock-news-proxy.your-subdomain.workers.dev"。
-NEWS_PROXY_BASE_URL = "https://tw-stock-news-proxy.po90050889.workers.dev"
+# 沒有伺服器、一定失敗，會自動退回顯示查詢連結）。
+#
+# 曾經設成 Cloudflare Worker 網址（tw-stock-news-proxy.po90050889.workers.dev）試過，
+# 但 Google 新聞會不定期把 Cloudflare Workers 的共用 IP 判定為自動化查詢而擋掉（503），
+# 導致本機也變得不穩定；改回留空，本機 nginx 用的是自己的網路 IP，實測沒被擋過。
+# GitHub Pages 因此沒有真新聞標題、只會顯示查詢連結，這是刻意的取捨。
+# Worker 程式碼還在 cloudflare-worker/news-proxy.js，之後想重新啟用可以再填回這裡。
+NEWS_PROXY_BASE_URL = ""
 
 TAIPEI_TZ = ZoneInfo("Asia/Taipei")
 
