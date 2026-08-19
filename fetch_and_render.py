@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -33,6 +34,7 @@ TAIPEI_TZ = ZoneInfo("Asia/Taipei")
 ROOT_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = ROOT_DIR / "templates"
 OUTPUT_PATH = ROOT_DIR / "output" / "disposal.html"
+SUMMARY_PATH = ROOT_DIR / "output" / "summary.txt"
 MATERIAL_LOG_PATH = ROOT_DIR / "data" / "material_info.json"
 
 REQUEST_TIMEOUT = 15
@@ -48,6 +50,8 @@ class DisposalRecord:
     market: str  # "上市" | "上櫃"
     code: str
     name: str
+    announce_date_display: str  # 處置公告日，西元年顯示
+    duration_days: int  # 處置期間天數（含起訖日）
     period_display: str  # 西元年顯示
     start_num: int
     end_num: int
@@ -114,6 +118,19 @@ def roc_to_date(roc_str: str) -> date:
     return date(n // 10000 + 1911, n // 100 % 100, n % 100)
 
 
+def period_duration_days(start_num: int, end_num: int) -> int:
+    """處置期間天數（含起訖日），start_num/end_num 為 roc_to_date 可解析的 7 碼民國年數字。"""
+    return (roc_to_date(str(end_num)) - roc_to_date(str(start_num))).days + 1
+
+
+def format_announce_date(raw_date: str) -> str:
+    """處置公告日「Date」欄位（民國年 8 碼數字字串，例如 "1150806"）轉西元年顯示；解析失敗回傳原始值。"""
+    try:
+        return roc_to_date(raw_date).strftime("%Y/%m/%d")
+    except (ValueError, TypeError):
+        return raw_date or "—"
+
+
 def build_twse_records(raw: list[dict]) -> list[DisposalRecord]:
     records = []
     for item in raw:
@@ -126,6 +143,8 @@ def build_twse_records(raw: list[dict]) -> list[DisposalRecord]:
                 market="上市",
                 code=item.get("Code", ""),
                 name=item.get("Name", ""),
+                announce_date_display=format_announce_date(item.get("Date", "")),
+                duration_days=period_duration_days(start_num, end_num),
                 period_display=display,
                 start_num=start_num,
                 end_num=end_num,
@@ -149,6 +168,8 @@ def build_tpex_records(raw: list[dict]) -> list[DisposalRecord]:
                 market="上櫃",
                 code=item.get("SecuritiesCompanyCode", ""),
                 name=item.get("CompanyName", ""),
+                announce_date_display=format_announce_date(item.get("Date", "")),
+                duration_days=period_duration_days(start_num, end_num),
                 period_display=display,
                 start_num=start_num,
                 end_num=end_num,
@@ -293,6 +314,32 @@ def render(
     )
 
 
+def build_summary_text(
+    active_records: list[DisposalRecord],
+    today_material_infos: list[dict],
+    errors: list[str],
+    generated_at: datetime,
+) -> str:
+    """給 GitHub Actions 推播（例如 Telegram）用的純文字摘要。"""
+    listed_count = sum(1 for r in active_records if r.market == "上市")
+    otc_count = sum(1 for r in active_records if r.market == "上櫃")
+
+    lines = [
+        f"📊 台股每日處置股 {generated_at.strftime('%Y-%m-%d')}",
+        f"今日處置股：{len(active_records)} 檔（上市 {listed_count}、上櫃 {otc_count}）",
+        f"今日重大訊息：{len(today_material_infos)} 則",
+    ]
+    if errors:
+        lines.append(f"⚠ {len(errors)} 個資料源抓取失敗，詳見網頁上方標註")
+
+    repo = os.environ.get("GITHUB_REPOSITORY")  # GitHub Actions 內建環境變數，例如 "user/tw-stock-disposal"
+    if repo and "/" in repo:
+        owner, _, name = repo.partition("/")
+        lines.append(f"完整清單：https://{owner}.github.io/{name}/disposal.html")
+
+    return "\n".join(lines)
+
+
 def main() -> int:
     now = datetime.now(TAIPEI_TZ)
     today = today_num(now)
@@ -343,6 +390,9 @@ def main() -> int:
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(html, encoding="utf-8")
+    SUMMARY_PATH.write_text(
+        build_summary_text(active_records, today_material_infos, errors, now), encoding="utf-8"
+    )
 
     print(
         f"已產出 {OUTPUT_PATH}（{len(active_records)} 檔今日處置中、"

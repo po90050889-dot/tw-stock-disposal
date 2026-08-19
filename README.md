@@ -67,6 +67,31 @@ docker compose --profile web up -d webserver
 
 也可以手動觸發：到 GitHub Actions 頁面選擇 `Daily Update Disposal Page` → `Run workflow`。
 
+### Telegram 推播（選用）
+
+排程每次跑完會嘗試用 Telegram Bot 把當日摘要（處置股/重大訊息則數 + 網頁連結）推播到手機，
+沒設定的話會自動略過，不影響主流程。設定步驟：
+
+1. Telegram 搜尋 **@BotFather**，傳送 `/newbot`，依提示建立一個 bot，拿到一組
+   `Bot Token`（格式類似 `123456789:ABCdefGhIJKlmNoPQRstuVWXyz`）。
+2. 用自己的帳號搜尋剛建立的 bot、傳一句話給它（先啟動對話）。
+3. 瀏覽器打開 `https://api.telegram.org/bot<你的TOKEN>/getUpdates`，在回傳的 JSON 裡找
+   `"chat":{"id": 數字, ...}`，這組數字就是 `Chat ID`。
+4. 到這個 repo 的 **Settings → Secrets and variables → Actions**，新增兩個 repository
+   secret：`TELEGRAM_BOT_TOKEN`、`TELEGRAM_CHAT_ID`，值分別填入上面拿到的 Token 與 Chat ID。
+
+之後排程每次執行完（不論是否有處置股資料變化）都會推播一則摘要；若想要「有變化才通知」
+或加上更多內容，可以修改 `fetch_and_render.py` 的 `build_summary_text()`。推播訊息內容範例：
+
+```
+📊 台股每日處置股 2026-08-19
+今日處置股：23 檔（上市 10、上櫃 13）
+今日重大訊息：0 則
+完整清單：https://<你的帳號>.github.io/<repo名稱>/disposal.html
+```
+
+（最後一行連結只有在 GitHub Pages 設定完成後才是真的可以打開的網址，否則可以先忽略。）
+
 ## 核心邏輯備註
 
 - 「今天仍在處置期間內」的判斷：把日期轉成 8 碼民國年數字（例如 2026-08-09 → `1150809`）

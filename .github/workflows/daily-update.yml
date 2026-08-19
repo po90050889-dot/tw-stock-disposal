@@ -31,3 +31,21 @@ jobs:
           git add output/disposal.html data/material_info.json
           git diff --cached --quiet || git commit -m "chore: update disposal.html $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push
+
+      - name: Send Telegram notification
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID 尚未設定（repo Settings -> Secrets and variables -> Actions），略過推播。"
+            exit 0
+          fi
+          if [ ! -f output/summary.txt ]; then
+            echo "找不到 output/summary.txt，略過推播。"
+            exit 0
+          fi
+          curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode chat_id="${TELEGRAM_CHAT_ID}" \
+            --data-urlencode text="$(cat output/summary.txt)"
