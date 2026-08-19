@@ -143,15 +143,29 @@ docker compose --profile web up -d webserver
 奇摩股市固定同時給 `.TW`／`.TWO` 兩個連結。
 
 **技術限制與取捨**：這是純靜態頁面，沒有自己的後端伺服器；而 Google 新聞 RSS 不允許瀏覽器
-直接跨網域讀取內容（沒有 CORS header）。因此改由 `nginx.conf` 加一個 `/api/news` 反向代理
-（同源請求，補上 CORS header），前端 JS 再 `fetch()` 該端點、解析回傳的 RSS XML 顯示標題。
-這表示：
+直接跨網域讀取內容（沒有 CORS header）。有兩層代理可以解決這個問題，`fetch_and_render.py`
+的 `NEWS_PROXY_BASE_URL` 決定要用哪一個：
 
-- **新聞標題只有透過 `docker compose --profile web up webserver` 開啟的網頁伺服器瀏覽時才會
-  顯示**；直接雙擊開啟 `output/disposal.html` 檔案（`file://` 協定，沒有伺服器代理）時，
-  `fetch()` 會失敗，頁面會自動退回只顯示下方的查詢連結，並附上原因說明文字，不會整頁掛掉。
+- **本機 nginx**（`nginx.conf` 的 `/api/news`）：只有透過
+  `docker compose --profile web up webserver` 開啟的網頁伺服器瀏覽時才會顯示；直接雙擊開啟
+  `output/disposal.html` 檔案，或透過 GitHub Pages 瀏覽，`fetch()` 都會失敗。
+- **Cloudflare Worker**（`cloudflare-worker/news-proxy.js`，部署步驟見檔案內註解）：把
+  `NEWS_PROXY_BASE_URL` 設成部署好的 Worker 網址（例如
+  `https://tw-stock-news-proxy.<你的帳號>.workers.dev`）之後，本機、GitHub Pages 都能用。
+
+不論用哪種代理，**新聞標題功能都有已知的不穩定性，接受度因人而異，先說明清楚**：
+
+- Google 會把來自雲端代管服務（例如 Cloudflare Workers 的共用 IP）的請求判定為「自動化
+  查詢」而不定期擋掉（回傳 503），擋多久、多頻繁不受我們控制，實測時發現同一個代號有時候
+  成功、幾分鐘內重複查詢又會被擋。本機 nginx 因為用的是你自己的網路 IP，被擋的機率通常
+  低很多，但也不是完全不會發生。
+- 頁面已經做了防呆：查不到標題時（不管是代理沒設定、fetch 失敗、還是被 Google 擋）都會
+  自動退回顯示下方的查詢連結卡片（Google 新聞搜尋、Yahoo 奇摩股市、Goodinfo），使用者
+  還是找得到新聞，只是要多點一次連結，不會整頁掛掉或顯示錯誤畫面。
+- Worker 程式碼刻意**不快取任何回應**（`Cache-Control: no-store`）：早期版本用了
+  `cf.cacheEverything`，若剛好某次被 Google 擋下，那個錯誤回應會被 Cloudflare 邊緣快取
+  住，接下來幾分鐘同樣的查詢都會拿到快取的錯誤，看起來像「一直壞掉」，因此拿掉快取、
+  改成失敗時在 Worker 內重試一次。
 - Google 新聞 RSS 的版權聲明註明「僅供個人非商業用途的 feed reader 使用」；這裡是把它用在
   個人本機專案的網頁分頁上，非商業、非大量重新散布，但嚴格來說不完全等同「個人 feed
   reader」，使用前請自行評估是否符合你的使用情境。
-- 這個代理沒有做結果快取或速率限制，若在短時間內查詢大量不同代號，理論上可能被 Google
-  新聞判定為異常流量而暫時擋掉；一般個人使用量不會有問題。

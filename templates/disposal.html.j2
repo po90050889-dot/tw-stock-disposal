@@ -457,9 +457,17 @@
 
   <div class="tab-panel" data-panel="news">
   <p class="meta">輸入股票代號，顯示近期相關新聞標題（來自 Google 新聞），點擊標題開啟原文；
-    下方另附幾個個股資訊網站的查詢連結。新聞標題透過本機 nginx 代理讀取，只有用
-    <code>docker compose --profile web up webserver</code> 開啟網頁伺服器瀏覽時才會顯示，
-    直接雙擊開啟 <code>output/disposal.html</code> 檔案則只會看到查詢連結。</p>
+    下方另附幾個個股資訊網站的查詢連結。
+    {% if news_proxy_base_url %}
+    新聞標題透過 Cloudflare Worker 代理讀取，不論本機或 GitHub Pages 瀏覽都能正常顯示。
+    {% else %}
+    新聞標題需要透過代理讀取才能顯示（尚未設定 Cloudflare Worker，見
+    <code>cloudflare-worker/news-proxy.js</code>），目前只有用
+    <code>docker compose --profile web up webserver</code> 開啟本機網頁伺服器瀏覽時才會顯示，
+    直接雙擊開啟 <code>output/disposal.html</code> 檔案或透過 GitHub Pages 瀏覽則只會看到
+    下方查詢連結。
+    {% endif %}
+  </p>
   <div class="news-query-bar">
     <label for="news-code-input">股票代號：</label>
     <input type="text" id="news-code-input" placeholder="例如 2330" inputmode="numeric" maxlength="10">
@@ -593,6 +601,11 @@
   renderMaterialForDate(dateInput.value);
 </script>
 <script>
+  // 部署好 Cloudflare Worker（cloudflare-worker/news-proxy.js）後，把網址填進
+  // fetch_and_render.py 的 NEWS_PROXY_BASE_URL；留空則退回相對路徑 /api/news
+  // （只有本機 nginx 有代理，GitHub Pages 上一定會失敗、自動改顯示查詢連結）。
+  var NEWS_PROXY_BASE_URL = {{ news_proxy_base_url | tojson }};
+
   function buildNewsLinkCard(source, url, desc) {
     var a = document.createElement("a");
     a.className = "news-link-card";
@@ -682,7 +695,8 @@
     headlinesEl.innerHTML = "";
     renderHeadlineStatus("新聞標題查詢中…");
 
-    var url = "/api/news?q=" + encodeURIComponent(code) + "&hl=zh-TW&gl=TW&ceid=TW%3Azh-Hant";
+    var base = NEWS_PROXY_BASE_URL || "/api/news";
+    var url = base + "?q=" + encodeURIComponent(code) + "&hl=zh-TW&gl=TW&ceid=TW%3Azh-Hant";
     fetch(url)
       .then(function (resp) {
         if (!resp.ok) throw new Error("HTTP " + resp.status);

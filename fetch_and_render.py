@@ -29,6 +29,12 @@ TPEX_URL = "https://www.tpex.org.tw/openapi/v1/tpex_disposal_information"
 TWSE_MATERIAL_URL = "https://openapi.twse.com.tw/v1/opendata/t187ap04_L"
 TPEX_MATERIAL_URL = "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O"
 
+# 「股票新聞查詢」分頁讀真實新聞標題用的 CORS 代理（見 cloudflare-worker/news-proxy.js）。
+# 留空的話，網頁會改用相對路徑 /api/news（只有本機 nginx 有代理這個路徑，GitHub Pages
+# 沒有伺服器、一定失敗，會自動退回顯示查詢連結）。部署好 Cloudflare Worker 後把網址填在這裡，
+# 例如 "https://tw-stock-news-proxy.your-subdomain.workers.dev"。
+NEWS_PROXY_BASE_URL = "https://tw-stock-news-proxy.po90050889.workers.dev"
+
 TAIPEI_TZ = ZoneInfo("Asia/Taipei")
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -310,6 +316,7 @@ def render(
         otc_count=otc_count,
         material_count=len(today_material_infos),
         material_retention_days=MATERIAL_RETENTION_DAYS,
+        news_proxy_base_url=NEWS_PROXY_BASE_URL,
         errors=errors,
         generated_at=generated_at.strftime("%Y-%m-%d %H:%M:%S %Z"),
     )
