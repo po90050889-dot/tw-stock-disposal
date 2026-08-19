@@ -62,8 +62,14 @@ docker compose --profile web up -d webserver
 
 若要用 GitHub Pages 對外發布：
 
-1. 到 repo 設定 → Pages，Source 選擇 branch（例如 `main`）＋資料夾 `/output`。
-2. 之後每次排程跑完、`output/disposal.html` 有變動，Pages 網址就會自動更新。
+1. 到 repo **Settings → Pages**，**Build and deployment → Source** 選 **GitHub Actions**
+   （不要選 "Deploy from a branch"——那個模式的資料夾只能選 `/` 或 `/docs`，沒有
+   `/output` 可選；workflow 已經用 `actions/upload-pages-artifact` /
+   `actions/deploy-pages` 直接把 `output/` 部署出去，不受這個限制）。
+2. **GitHub Free 帳號的 Pages 只能用在 Public repo**（Private repo 需要 GitHub Pro），
+   若 repo 是 Private，需要先到 Settings 最下面 Danger Zone 改成 Public 才能啟用。
+3. 之後每次排程跑完，`output/` 有變動就會自動重新部署到 Pages 網址
+   （`https://<帳號>.github.io/<repo名稱>/disposal.html`）。
 
 也可以手動觸發：到 GitHub Actions 頁面選擇 `Daily Update Disposal Page` → `Run workflow`。
 
