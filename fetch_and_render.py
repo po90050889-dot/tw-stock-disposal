@@ -34,6 +34,7 @@ TAIPEI_TZ = ZoneInfo("Asia/Taipei")
 ROOT_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = ROOT_DIR / "templates"
 OUTPUT_PATH = ROOT_DIR / "output" / "disposal.html"
+INDEX_PATH = ROOT_DIR / "output" / "index.html"
 SUMMARY_PATH = ROOT_DIR / "output" / "summary.txt"
 MATERIAL_LOG_PATH = ROOT_DIR / "data" / "material_info.json"
 
@@ -390,6 +391,13 @@ def main() -> int:
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(html, encoding="utf-8")
+    INDEX_PATH.write_text(
+        '<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">'
+        '<meta http-equiv="refresh" content="0; url=disposal.html">'
+        '<title>台股每日處置股</title></head>'
+        '<body>頁面已搬移，若沒有自動跳轉請點<a href="disposal.html">這裡</a>。</body></html>',
+        encoding="utf-8",
+    )
     SUMMARY_PATH.write_text(
         build_summary_text(active_records, today_material_infos, errors, now), encoding="utf-8"
     )
