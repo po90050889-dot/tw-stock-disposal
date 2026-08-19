@@ -2,7 +2,10 @@ name: Daily Update Disposal Page
 
 on:
   schedule:
-    - cron: "0 10 * * *"   # UTC 10:00 = 台灣時間 18:00，每天（含週末，避免漏接假日發布的重大訊息）
+    # UTC 10:07 = 台灣時間 18:07，每天（含週末，避免漏接假日發布的重大訊息）。
+    # 刻意避開整點（10:00）：GitHub Actions 官方文件提到整點是排程尖峰，負載過高時
+    # 佇列中的排程任務可能直接被丟棄、不會補跑，錯開幾分鐘可以降低撞到尖峰的機率。
+    - cron: "7 10 * * *"
   workflow_dispatch: {}
 
 permissions:
