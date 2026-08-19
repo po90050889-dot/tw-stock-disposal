@@ -9,25 +9,38 @@
 """
 from __future__ import annotations
 
+import json
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import markupsafe
 import requests
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 
 TWSE_URL = "https://openapi.twse.com.tw/v1/announcement/punish"
 TPEX_URL = "https://www.tpex.org.tw/openapi/v1/tpex_disposal_information"
+
+# 上市／上櫃公司每日重大訊息（新訂單、財報、營收公告等都屬於重大訊息的一種）
+TWSE_MATERIAL_URL = "https://openapi.twse.com.tw/v1/opendata/t187ap04_L"
+TPEX_MATERIAL_URL = "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O"
 
 TAIPEI_TZ = ZoneInfo("Asia/Taipei")
 
 ROOT_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = ROOT_DIR / "templates"
 OUTPUT_PATH = ROOT_DIR / "output" / "disposal.html"
+MATERIAL_LOG_PATH = ROOT_DIR / "data" / "material_info.json"
 
 REQUEST_TIMEOUT = 15
+
+# 官方 API 每次只回傳「最新一個交易日」的重大訊息批次，無法查詢任意歷史日期。
+# 「依日期查詢」分頁只能查到系統開始執行、累積 data/material_info.json 之後的日子，
+# 且最多只保留最近這麼多天，避免持久化檔案／頁面內嵌資料無限成長。
+MATERIAL_RETENTION_DAYS = 180
 
 
 @dataclass
@@ -95,6 +108,12 @@ def today_num(now: datetime) -> int:
     return roc_year * 10000 + now.month * 100 + now.day
 
 
+def roc_to_date(roc_str: str) -> date:
+    """"1150808" -> date(2026, 8, 8)"""
+    n = int(roc_str)
+    return date(n // 10000 + 1911, n // 100 % 100, n % 100)
+
+
 def build_twse_records(raw: list[dict]) -> list[DisposalRecord]:
     records = []
     for item in raw:
@@ -141,15 +160,113 @@ def build_tpex_records(raw: list[dict]) -> list[DisposalRecord]:
     return records
 
 
-def render(records: list[DisposalRecord], errors: list[str], generated_at: datetime) -> str:
+def build_material_entries(raw: list[dict], market: str) -> list[dict]:
+    """把重大訊息原始資料轉成統一格式的 dict，供 JSON 持久化保存（不做日期篩選）。"""
+    entries = []
+    for item in raw:
+        if market == "上市":
+            code = item.get("公司代號", "")
+            name = item.get("公司名稱", "")
+            subject = (item.get("主旨 ") or item.get("主旨") or "").strip()
+        else:
+            code = item.get("SecuritiesCompanyCode", "")
+            name = item.get("CompanyName", "")
+            subject = (item.get("主旨") or "").strip()
+
+        announce_date = item.get("發言日期", "")
+        if not code or not subject or not announce_date:
+            continue
+
+        entries.append(
+            {
+                "market": market,
+                "code": code,
+                "name": name,
+                "announce_date": announce_date,
+                "announce_time": item.get("發言時間", ""),
+                "clause": item.get("符合條款", ""),
+                "subject": subject,
+                "detail": (item.get("說明") or "").strip(),
+            }
+        )
+    return entries
+
+
+def load_material_log() -> list[dict]:
+    if not MATERIAL_LOG_PATH.exists():
+        return []
+    try:
+        return json.loads(MATERIAL_LOG_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def save_material_log(entries: list[dict]) -> None:
+    MATERIAL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    MATERIAL_LOG_PATH.write_text(
+        json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def _material_key(entry: dict) -> tuple:
+    return (entry["market"], entry["code"], entry["announce_date"], entry["announce_time"], entry["subject"])
+
+
+def merge_material_entries(existing: list[dict], new_entries: list[dict]) -> list[dict]:
+    """用 (市場,代號,發言日期,發言時間,主旨) 當作去重 key，同一則多次抓取只留一筆。"""
+    by_key = {_material_key(e): e for e in existing}
+    for entry in new_entries:
+        by_key[_material_key(entry)] = entry
+    return list(by_key.values())
+
+
+def prune_material_entries(entries: list[dict], today: date, retention_days: int) -> list[dict]:
+    kept = []
+    for entry in entries:
+        try:
+            announce_date = roc_to_date(entry["announce_date"])
+        except (KeyError, ValueError):
+            continue
+        if announce_date <= today and (today - announce_date).days <= retention_days:
+            kept.append(entry)
+    return kept
+
+
+def material_entry_to_display(entry: dict) -> dict:
+    """把持久化紀錄轉成樣板／前端 JS 用的顯示格式。"""
+    announce_date = roc_to_date(entry["announce_date"])
+    yahoo_suffix = "TW" if entry["market"] == "上市" else "TWO"
+    code = entry["code"]
+    return {
+        "market": entry["market"],
+        "code": code,
+        "name": entry["name"],
+        "announce_date_display": announce_date.strftime("%Y/%m/%d"),
+        "announce_date_iso": announce_date.isoformat(),
+        "clause": entry["clause"],
+        "subject": entry["subject"],
+        "detail": entry["detail"],
+        "yahoo_url": f"https://tw.stock.yahoo.com/quote/{code}.{yahoo_suffix}",
+        "goodinfo_url": f"https://goodinfo.tw/tw/StockDetail.asp?STOCK_ID={code}",
+    }
+
+
+def render(
+    records: list[DisposalRecord],
+    today_material_infos: list[dict],
+    material_log_display: list[dict],
+    today_iso: str,
+    errors: list[str],
+    generated_at: datetime,
+) -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html", "j2"]),
     )
 
-    def nl2br(value: str) -> str:
-        escaped = env.filters["e"](value or "")
-        return escaped.replace("\n", "<br>\n")
+    def nl2br(value: str) -> Markup:
+        escaped = str(markupsafe.escape(value or ""))
+        return Markup(escaped.replace("\n", "<br>\n"))
 
     env.filters["nl2br"] = nl2br
 
@@ -158,11 +275,19 @@ def render(records: list[DisposalRecord], errors: list[str], generated_at: datet
     listed_count = sum(1 for r in records if r.market == "上市")
     otc_count = sum(1 for r in records if r.market == "上櫃")
 
+    min_date_iso = min((m["announce_date_iso"] for m in material_log_display), default=today_iso)
+
     return template.render(
         records=sorted(records, key=lambda r: (r.market, r.code)),
+        material_infos=sorted(today_material_infos, key=lambda m: (m["market"], m["code"])),
+        material_log=sorted(material_log_display, key=lambda m: m["announce_date_iso"], reverse=True),
+        today_iso=today_iso,
+        min_date_iso=min_date_iso,
         total_count=len(records),
         listed_count=listed_count,
         otc_count=otc_count,
+        material_count=len(today_material_infos),
+        material_retention_days=MATERIAL_RETENTION_DAYS,
         errors=errors,
         generated_at=generated_at.strftime("%Y-%m-%d %H:%M:%S %Z"),
     )
@@ -189,12 +314,41 @@ def main() -> int:
 
     active_records = [r for r in all_records if r.start_num <= today <= r.end_num]
 
-    html = render(active_records, errors, now)
+    # 重大訊息：全體上市／上櫃、不限處置股。官方 API 只給最新一個交易日的批次，抓到後
+    # 併入本機保存的紀錄，並剔除超過 MATERIAL_RETENTION_DAYS 天的舊資料，藉多次（每日
+    # 排程）執行累積出可查詢的歷史清單
+    new_material: list[dict] = []
+
+    twse_mat_raw, twse_mat_err = fetch_json(TWSE_MATERIAL_URL)
+    if twse_mat_err:
+        errors.append(f"上市重大訊息資料源抓取失敗：{twse_mat_err}")
+    elif twse_mat_raw:
+        new_material.extend(build_material_entries(twse_mat_raw, "上市"))
+
+    tpex_mat_raw, tpex_mat_err = fetch_json(TPEX_MATERIAL_URL)
+    if tpex_mat_err:
+        errors.append(f"上櫃重大訊息資料源抓取失敗：{tpex_mat_err}")
+    elif tpex_mat_raw:
+        new_material.extend(build_material_entries(tpex_mat_raw, "上櫃"))
+
+    material_log = merge_material_entries(load_material_log(), new_material)
+    material_log = prune_material_entries(material_log, now.date(), MATERIAL_RETENTION_DAYS)
+    save_material_log(material_log)
+
+    material_log_display = [material_entry_to_display(e) for e in material_log]
+    today_iso = now.date().isoformat()
+    today_material_infos = [m for m in material_log_display if m["announce_date_iso"] == today_iso]
+
+    html = render(active_records, today_material_infos, material_log_display, today_iso, errors, now)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(html, encoding="utf-8")
 
-    print(f"已產出 {OUTPUT_PATH}（{len(active_records)} 檔今日處置中，{len(errors)} 個錯誤）")
+    print(
+        f"已產出 {OUTPUT_PATH}（{len(active_records)} 檔今日處置中、"
+        f"{len(today_material_infos)} 則今日重大訊息、累積 {len(material_log_display)} 則可查詢、"
+        f"{len(errors)} 個錯誤）"
+    )
     for err in errors:
         print(f"  - {err}", file=sys.stderr)
 

@@ -120,6 +120,139 @@
     white-space: normal;
   }
 
+  .links a {
+    display: inline-block;
+    color: var(--accent);
+    margin-right: 10px;
+    white-space: nowrap;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    appearance: none;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-family: inherit;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .date-query-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .date-query-bar label { color: var(--text-dim); font-size: 0.9rem; }
+  .date-query-bar input[type="date"] {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color-scheme: dark;
+  }
+
+  .news-query-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .news-query-bar label { color: var(--text-dim); font-size: 0.9rem; }
+  .news-query-bar input[type="text"] {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    width: 160px;
+  }
+  .news-query-bar button {
+    background: var(--accent);
+    color: #0f1115;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .news-query-hint {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin: -8px 0 20px;
+  }
+  .news-headline-list {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .news-headline-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .news-headline-item a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .news-headline-item a:hover { color: var(--accent); }
+  .news-headline-item .meta-line {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    margin-top: 4px;
+  }
+  .news-headline-status {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    margin: 0 0 20px;
+  }
+
+  .news-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .news-link-card {
+    display: block;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .news-link-card:hover { border-color: var(--accent); }
+  .news-link-card .source { color: var(--accent); font-weight: 600; font-size: 0.95rem; }
+  .news-link-card .desc { color: var(--text-dim); font-size: 0.82rem; margin-top: 4px; }
+
   .empty-row td {
     text-align: center;
     color: var(--text-dim);
@@ -196,6 +329,14 @@
     </div>
   </div>
 
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab-btn active" data-tab="disposal" role="tab" aria-selected="true">處置股清單</button>
+    <button type="button" class="tab-btn" data-tab="stockinfo" role="tab" aria-selected="false">個股資料</button>
+    <button type="button" class="tab-btn" data-tab="bydate" role="tab" aria-selected="false">依日期查詢</button>
+    <button type="button" class="tab-btn" data-tab="news" role="tab" aria-selected="false">股票新聞查詢</button>
+  </div>
+
+  <div class="tab-panel active" data-panel="disposal">
   <table>
     <thead>
       <tr>
@@ -235,13 +376,380 @@
       {% endif %}
     </tbody>
   </table>
+  </div>
+
+  <div class="tab-panel" data-panel="stockinfo">
+  <p class="meta">全體上市／上櫃公司，今日公告之重大訊息（新訂單、財報、營收公告…等），
+    共 {{ material_count }} 則。與處置股清單彼此獨立、不限於處置股。</p>
+  <table>
+    <thead>
+      <tr>
+        <th>市場</th>
+        <th>代號</th>
+        <th>名稱</th>
+        <th>發言日期</th>
+        <th>重大訊息</th>
+        <th>相關連結</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if material_infos %}
+        {% for m in material_infos %}
+        <tr>
+          <td data-label="市場">
+            {% if m.market == "上市" %}
+            <span class="badge badge-listed">上市</span>
+            {% else %}
+            <span class="badge badge-otc">上櫃</span>
+            {% endif %}
+          </td>
+          <td data-label="代號" class="code">{{ m.code }}</td>
+          <td data-label="名稱">{{ m.name }}</td>
+          <td data-label="發言日期">{{ m.announce_date_display }}</td>
+          <td data-label="重大訊息">
+            <details>
+              <summary>{{ m.subject }}</summary>
+              <div class="full-reason">
+                {% if m.clause %}（{{ m.clause }}）<br>{% endif %}
+                {{ m.detail | nl2br }}
+              </div>
+            </details>
+          </td>
+          <td data-label="相關連結" class="links">
+            <a href="{{ m.yahoo_url }}" target="_blank" rel="noopener">Yahoo股市</a>
+            <a href="{{ m.goodinfo_url }}" target="_blank" rel="noopener">Goodinfo</a>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr class="empty-row"><td colspan="6">今日無重大訊息資料</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tab-panel" data-panel="bydate">
+  <p class="meta">全體上市／上櫃公司，查詢指定日期公告之重大訊息。系統只保留最近
+    {{ material_retention_days }} 天內累積到的資料（{{ min_date_iso }} ～ {{ today_iso }}），
+    早於系統開始收集資料的日子查不到。</p>
+  <div class="date-query-bar">
+    <label for="date-query-input">選擇日期：</label>
+    <input type="date" id="date-query-input" value="{{ today_iso }}" min="{{ min_date_iso }}" max="{{ today_iso }}">
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>市場</th>
+        <th>代號</th>
+        <th>名稱</th>
+        <th>發言日期</th>
+        <th>重大訊息</th>
+        <th>相關連結</th>
+      </tr>
+    </thead>
+    <tbody id="date-query-tbody"></tbody>
+  </table>
+  </div>
+
+  <div class="tab-panel" data-panel="news">
+  <p class="meta">輸入股票代號，顯示近期相關新聞標題（來自 Google 新聞），點擊標題開啟原文；
+    下方另附幾個個股資訊網站的查詢連結。新聞標題透過本機 nginx 代理讀取，只有用
+    <code>docker compose --profile web up webserver</code> 開啟網頁伺服器瀏覽時才會顯示，
+    直接雙擊開啟 <code>output/disposal.html</code> 檔案則只會看到查詢連結。</p>
+  <div class="news-query-bar">
+    <label for="news-code-input">股票代號：</label>
+    <input type="text" id="news-code-input" placeholder="例如 2330" inputmode="numeric" maxlength="10">
+    <button type="button" id="news-query-btn">查詢</button>
+  </div>
+  <p class="news-query-hint" id="news-query-hint" style="display: none;"></p>
+  <div id="news-headlines"></div>
+  <div class="news-links" id="news-links"></div>
+  </div>
 
   <footer>
     <p>原始資料來源：
       <a href="https://openapi.twse.com.tw/v1/announcement/punish" target="_blank" rel="noopener">TWSE 上市處置股 API</a>　|
-      <a href="https://www.tpex.org.tw/openapi/v1/tpex_disposal_information" target="_blank" rel="noopener">TPEx 上櫃處置股 API</a>
+      <a href="https://www.tpex.org.tw/openapi/v1/tpex_disposal_information" target="_blank" rel="noopener">TPEx 上櫃處置股 API</a>　|
+      <a href="https://openapi.twse.com.tw/v1/opendata/t187ap04_L" target="_blank" rel="noopener">TWSE 上市重大訊息 API</a>　|
+      <a href="https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O" target="_blank" rel="noopener">TPEx 上櫃重大訊息 API</a>
     </p>
   </footer>
 </div>
+<script>
+  document.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var target = btn.getAttribute("data-tab");
+      document.querySelectorAll(".tab-btn").forEach(function (b) {
+        var active = b === btn;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      document.querySelectorAll(".tab-panel").forEach(function (p) {
+        p.classList.toggle("active", p.getAttribute("data-panel") === target);
+      });
+    });
+  });
+</script>
+<script>
+  var MATERIAL_LOG = {{ material_log | tojson }};
+
+  function marketBadge(market) {
+    var span = document.createElement("span");
+    span.className = "badge " + (market === "上市" ? "badge-listed" : "badge-otc");
+    span.textContent = market;
+    return span;
+  }
+
+  function buildMaterialRow(m) {
+    var tr = document.createElement("tr");
+
+    var tdMarket = document.createElement("td");
+    tdMarket.setAttribute("data-label", "市場");
+    tdMarket.appendChild(marketBadge(m.market));
+    tr.appendChild(tdMarket);
+
+    var tdCode = document.createElement("td");
+    tdCode.setAttribute("data-label", "代號");
+    tdCode.className = "code";
+    tdCode.textContent = m.code;
+    tr.appendChild(tdCode);
+
+    var tdName = document.createElement("td");
+    tdName.setAttribute("data-label", "名稱");
+    tdName.textContent = m.name;
+    tr.appendChild(tdName);
+
+    var tdDate = document.createElement("td");
+    tdDate.setAttribute("data-label", "發言日期");
+    tdDate.textContent = m.announce_date_display;
+    tr.appendChild(tdDate);
+
+    var tdSubject = document.createElement("td");
+    tdSubject.setAttribute("data-label", "重大訊息");
+    var details = document.createElement("details");
+    var summary = document.createElement("summary");
+    summary.textContent = m.subject;
+    details.appendChild(summary);
+    var full = document.createElement("div");
+    full.className = "full-reason";
+    if (m.clause) {
+      full.appendChild(document.createTextNode("（" + m.clause + "）"));
+      full.appendChild(document.createElement("br"));
+    }
+    var lines = (m.detail || "").split("\n");
+    lines.forEach(function (line, i) {
+      if (i > 0) full.appendChild(document.createElement("br"));
+      full.appendChild(document.createTextNode(line));
+    });
+    details.appendChild(full);
+    tdSubject.appendChild(details);
+    tr.appendChild(tdSubject);
+
+    var tdLinks = document.createElement("td");
+    tdLinks.setAttribute("data-label", "相關連結");
+    tdLinks.className = "links";
+    var a1 = document.createElement("a");
+    a1.href = m.yahoo_url;
+    a1.target = "_blank";
+    a1.rel = "noopener";
+    a1.textContent = "Yahoo股市";
+    var a2 = document.createElement("a");
+    a2.href = m.goodinfo_url;
+    a2.target = "_blank";
+    a2.rel = "noopener";
+    a2.textContent = "Goodinfo";
+    tdLinks.appendChild(a1);
+    tdLinks.appendChild(a2);
+    tr.appendChild(tdLinks);
+
+    return tr;
+  }
+
+  function renderMaterialForDate(iso) {
+    var tbody = document.getElementById("date-query-tbody");
+    tbody.innerHTML = "";
+    var matches = MATERIAL_LOG.filter(function (m) { return m.announce_date_iso === iso; });
+    if (matches.length === 0) {
+      var tr = document.createElement("tr");
+      tr.className = "empty-row";
+      var td = document.createElement("td");
+      td.colSpan = 6;
+      td.textContent = iso + " 無重大訊息資料（可能是非交易日，或早於系統開始收集資料的日子）";
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+      return;
+    }
+    matches.forEach(function (m) { tbody.appendChild(buildMaterialRow(m)); });
+  }
+
+  var dateInput = document.getElementById("date-query-input");
+  dateInput.addEventListener("change", function () {
+    renderMaterialForDate(dateInput.value);
+  });
+  renderMaterialForDate(dateInput.value);
+</script>
+<script>
+  function buildNewsLinkCard(source, url, desc) {
+    var a = document.createElement("a");
+    a.className = "news-link-card";
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    var sourceEl = document.createElement("div");
+    sourceEl.className = "source";
+    sourceEl.textContent = source;
+    var descEl = document.createElement("div");
+    descEl.className = "desc";
+    descEl.textContent = desc;
+    a.appendChild(sourceEl);
+    a.appendChild(descEl);
+    return a;
+  }
+
+  function buildHeadlineItem(item) {
+    var li = document.createElement("li");
+    li.className = "news-headline-item";
+    var a = document.createElement("a");
+    a.href = item.link;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = item.title;
+    li.appendChild(a);
+    if (item.source || item.pubDate) {
+      var metaLine = document.createElement("div");
+      metaLine.className = "meta-line";
+      var bits = [];
+      if (item.source) bits.push(item.source);
+      if (item.pubDate) bits.push(formatPubDate(item.pubDate));
+      metaLine.textContent = bits.join("　·　");
+      li.appendChild(metaLine);
+    }
+    return li;
+  }
+
+  function formatPubDate(pubDate) {
+    var d = new Date(pubDate);
+    if (isNaN(d.getTime())) return pubDate;
+    return d.toLocaleString("zh-TW", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function parseNewsXml(xmlText) {
+    var doc = new DOMParser().parseFromString(xmlText, "application/xml");
+    if (doc.querySelector("parsererror")) return [];
+    return Array.prototype.slice.call(doc.querySelectorAll("item"), 0, 10).map(function (item) {
+      var titleEl = item.querySelector("title");
+      var linkEl = item.querySelector("link");
+      var pubDateEl = item.querySelector("pubDate");
+      var sourceEl = item.querySelector("source");
+      return {
+        title: titleEl ? titleEl.textContent : "",
+        link: linkEl ? linkEl.textContent : "",
+        pubDate: pubDateEl ? pubDateEl.textContent : "",
+        source: sourceEl ? sourceEl.textContent : "",
+      };
+    }).filter(function (item) { return item.title && item.link; });
+  }
+
+  function renderHeadlineStatus(text) {
+    var headlinesEl = document.getElementById("news-headlines");
+    headlinesEl.innerHTML = "";
+    var p = document.createElement("p");
+    p.className = "news-headline-status";
+    p.textContent = text;
+    headlinesEl.appendChild(p);
+  }
+
+  function fetchHeadlines(code) {
+    var headlinesEl = document.getElementById("news-headlines");
+    headlinesEl.innerHTML = "";
+    renderHeadlineStatus("新聞標題查詢中…");
+
+    var url = "/api/news?q=" + encodeURIComponent(code) + "&hl=zh-TW&gl=TW&ceid=TW%3Azh-Hant";
+    fetch(url)
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        return resp.text();
+      })
+      .then(function (xmlText) {
+        var items = parseNewsXml(xmlText);
+        headlinesEl.innerHTML = "";
+        if (items.length === 0) {
+          renderHeadlineStatus("找不到「" + code + "」的相關新聞標題，可改用下方查詢連結。");
+          return;
+        }
+        var list = document.createElement("ul");
+        list.className = "news-headline-list";
+        items.forEach(function (item) {
+          list.appendChild(buildHeadlineItem(item));
+        });
+        headlinesEl.appendChild(list);
+      })
+      .catch(function () {
+        renderHeadlineStatus(
+          "無法載入新聞標題（可能是直接開啟 HTML 檔案、未透過 nginx 網頁伺服器瀏覽，" +
+          "或代理暫時無法連線），請改用下方查詢連結。"
+        );
+      });
+  }
+
+  function runNewsQuery() {
+    var input = document.getElementById("news-code-input");
+    var hint = document.getElementById("news-query-hint");
+    var linksEl = document.getElementById("news-links");
+    var headlinesEl = document.getElementById("news-headlines");
+    var code = input.value.trim();
+
+    linksEl.innerHTML = "";
+    headlinesEl.innerHTML = "";
+
+    if (!code) {
+      hint.style.display = "block";
+      hint.textContent = "請先輸入股票代號。";
+      return;
+    }
+    if (!/^[0-9A-Za-z]{1,10}$/.test(code)) {
+      hint.style.display = "block";
+      hint.textContent = "股票代號格式看起來不正確，請確認後再試一次。";
+      return;
+    }
+
+    hint.style.display = "none";
+    var encoded = encodeURIComponent(code);
+
+    fetchHeadlines(code);
+
+    var cards = [
+      {
+        source: "Google 新聞搜尋",
+        url: "https://news.google.com/search?q=" + encoded + "&hl=zh-TW&gl=TW&ceid=TW%3Azh-Hant",
+        desc: "跨來源新聞搜尋結果，不限市場別",
+      },
+      {
+        source: "Yahoo 奇摩股市（上市 .TW）",
+        url: "https://tw.stock.yahoo.com/quote/" + encoded + ".TW/news",
+        desc: "若代號為上市股票",
+      },
+      {
+        source: "Yahoo 奇摩股市（上櫃 .TWO）",
+        url: "https://tw.stock.yahoo.com/quote/" + encoded + ".TWO/news",
+        desc: "若代號為上櫃股票",
+      },
+      {
+        source: "Goodinfo 個股資訊",
+        url: "https://goodinfo.tw/tw/StockDetail.asp?STOCK_ID=" + encoded,
+        desc: "基本資料、財報、新聞彙整",
+      },
+    ];
+
+    cards.forEach(function (c) {
+      linksEl.appendChild(buildNewsLinkCard(c.source, c.url, c.desc));
+    });
+  }
+
+  document.getElementById("news-query-btn").addEventListener("click", runNewsQuery);
+  document.getElementById("news-code-input").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") runNewsQuery();
+  });
+</script>
 </body>
 </html>

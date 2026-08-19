@@ -17,6 +17,27 @@ python fetch_and_render.py
 若任一資料源抓取失敗，腳本不會中止，仍會用另一來源的資料產出網頁，並在頁面上方標註哪個
 資料源抓取失敗。
 
+## 用 Docker Desktop 執行
+
+不想在本機裝 Python，也可以用 Docker 執行（需要先安裝並啟動 Docker Desktop）：
+
+```bash
+# 產生（或更新）output/disposal.html，執行完容器就結束
+docker compose run --rm stock-disposal
+
+# 啟動本機網頁伺服器查看結果：http://localhost:8080/
+docker compose --profile web up -d webserver
+```
+
+- `stock-disposal` 服務：用 `Dockerfile`（python:3.12-alpine 多階段建置、非 root 使用者）
+  執行 `fetch_and_render.py`，把 `./output`、`./data` 掛載進容器，執行完寫回本機的
+  `output/disposal.html`、`data/material_info.json` 後容器即結束（一次性任務，非常駐）。
+- `webserver` 服務：`nginx:alpine` 掛載 `./output`（唯讀）與 `nginx.conf`（讓
+  `disposal.html` 可當首頁），監聽本機 `8080` port。放在 `web` profile，預設不會隨
+  `docker compose up` 一起啟動，要用 `--profile web` 明確帶出來；常駐執行，重新整理瀏覽器
+  即可看到 `stock-disposal` 每次重跑後的最新結果。
+- 要停止／清除容器：`docker compose --profile web down`。
+
 ## 專案結構
 
 ```
@@ -25,7 +46,12 @@ python fetch_and_render.py
 │   └── disposal.html.j2      # Jinja2 樣板（樣式與邏輯分離）
 ├── output/
 │   └── disposal.html         # 產出結果（每次執行覆蓋）
+├── data/
+│   └── material_info.json    # 重大訊息持久化紀錄，供「依日期查詢」分頁使用（見下方說明）
 ├── requirements.txt
+├── Dockerfile                 # stock-disposal 服務的映像檔（多階段建置、非 root）
+├── docker-compose.yml         # stock-disposal（一次性）＋ webserver（nginx，web profile）
+├── nginx.conf                 # webserver 用，讓 disposal.html 可當首頁
 └── .github/workflows/daily-update.yml   # 排程：交易日 18:00 台灣時間自動更新
 ```
 
@@ -49,3 +75,50 @@ python fetch_and_render.py
   已分別處理並統一轉換成西元年顯示。
 - 處置原因欄位用 `<details><summary>` 折疊，展開後顯示 API 回傳的完整全文
   （`Detail` / `DisposalCondition`），而非短摘要。
+
+## 個股資料 ／ 依日期查詢重大訊息
+
+頁面分成三個分頁籤（純前端 JS 切換，無需重新整理），彼此完全獨立、不限於處置股：
+
+- **處置股清單**：原本的處置股表格（市場／代號／名稱／處置期間／處置原因／處置措施）。
+- **個股資料**：**全體**上市／上櫃公司**今日**公告的重大訊息（新訂單、財報、營收公告…等
+  公司自行申報的重大訊息皆屬此類），每則顯示市場／代號／名稱／發言日期，以及可展開的完整
+  說明全文；每列同樣附 Yahoo 奇摩股市、Goodinfo 連結（依代號組成 URL，不自行爬取新聞或
+  財報內容）。
+- **依日期查詢**：多一個日期選擇器，可任意切換查看**系統已經累積到的某一天**公告的重大
+  訊息，切換日期時純前端 JS 從頁面內嵌的資料裡篩選、即時重繪表格，不需要重新整理或重新
+  產生頁面。
+
+資料源：TWSE `t187ap04_L`／TPEx `mopsfin_t187ap04_O`（上市／上櫃公司每日重大訊息，免金鑰）。
+
+**重要限制**：這兩個 API 每次呼叫只回傳「最新一個交易日」的批次，無法查詢任意歷史日期。
+因此腳本會把每次抓到的資料併入 `data/material_info.json`（去重後），並剔除超過
+`MATERIAL_RETENTION_DAYS`（預設 180 天）的舊資料，讓「依日期查詢」能查到的範圍隨著
+**每日排程重複執行**逐漸累積、往前滾動。也就是說：
+- 剛把 repo 部署起來、`data/material_info.json` 還是空的時候，只能查到系統開始執行之後
+  累積到的日子；「個股資料」分頁的「今日」永遠是即時抓取，不受累積進度影響。
+- 日期選擇器的可選範圍（`min`／`max`）會依實際累積到的最早／最新日期自動調整。
+- 若要在本機一次補齊更多天的資料，可以手動連續執行 `python fetch_and_render.py` 幾次
+  （但同一天內重跑仍只會抓到當天最新批次，無法回溯更早之前遺漏的日子）。
+- 此資料源抓取失敗時比照 TWSE／TPEx 處置股 API，會在頁面上方標註但不中止整頁產出。
+
+## 股票新聞查詢
+
+第四個分頁籤：輸入任意股票代號，顯示近期相關新聞標題（來源：Google 新聞 RSS，`news.google.com/rss/search`），
+點擊標題在新分頁開啟原文；下方另外附幾個外部網站的查詢連結（Google 新聞搜尋、Yahoo 奇摩
+股市上市／上櫃新聞頁、Goodinfo 個股頁）當備援。由於不知道輸入的代號是上市或上櫃，Yahoo
+奇摩股市固定同時給 `.TW`／`.TWO` 兩個連結。
+
+**技術限制與取捨**：這是純靜態頁面，沒有自己的後端伺服器；而 Google 新聞 RSS 不允許瀏覽器
+直接跨網域讀取內容（沒有 CORS header）。因此改由 `nginx.conf` 加一個 `/api/news` 反向代理
+（同源請求，補上 CORS header），前端 JS 再 `fetch()` 該端點、解析回傳的 RSS XML 顯示標題。
+這表示：
+
+- **新聞標題只有透過 `docker compose --profile web up webserver` 開啟的網頁伺服器瀏覽時才會
+  顯示**；直接雙擊開啟 `output/disposal.html` 檔案（`file://` 協定，沒有伺服器代理）時，
+  `fetch()` 會失敗，頁面會自動退回只顯示下方的查詢連結，並附上原因說明文字，不會整頁掛掉。
+- Google 新聞 RSS 的版權聲明註明「僅供個人非商業用途的 feed reader 使用」；這裡是把它用在
+  個人本機專案的網頁分頁上，非商業、非大量重新散布，但嚴格來說不完全等同「個人 feed
+  reader」，使用前請自行評估是否符合你的使用情境。
+- 這個代理沒有做結果快取或速率限制，若在短時間內查詢大量不同代號，理論上可能被 Google
+  新聞判定為異常流量而暫時擋掉；一般個人使用量不會有問題。

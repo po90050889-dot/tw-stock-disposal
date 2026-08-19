@@ -1,0 +1,29 @@
+services:
+  stock-disposal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tw-stock-disposal
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    environment:
+      TZ: Asia/Taipei
+    # For one-time execution
+    command: python fetch_and_render.py
+    # Uncomment below for long-running container with scheduled execution
+    # restart: always
+
+  # Optional: lightweight web server to serve the HTML output
+  webserver:
+    image: nginx:alpine
+    container_name: disposal-webserver
+    ports:
+      - "8080:80"
+    volumes:
+      - ./output:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - stock-disposal
+    profiles:
+      - web
