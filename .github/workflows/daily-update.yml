@@ -2,7 +2,7 @@ name: Daily Update Disposal Page
 
 on:
   schedule:
-    - cron: "0 10 * * 1-5"   # UTC 10:00 = 台灣時間 18:00，週一到週五
+    - cron: "0 10 * * *"   # UTC 10:00 = 台灣時間 18:00，每天（含週末，避免漏接假日發布的重大訊息）
   workflow_dispatch: {}
 
 permissions:

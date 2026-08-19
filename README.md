@@ -52,12 +52,14 @@ docker compose --profile web up -d webserver
 ├── Dockerfile                 # stock-disposal 服務的映像檔（多階段建置、非 root）
 ├── docker-compose.yml         # stock-disposal（一次性）＋ webserver（nginx，web profile）
 ├── nginx.conf                 # webserver 用，讓 disposal.html 可當首頁
-└── .github/workflows/daily-update.yml   # 排程：交易日 18:00 台灣時間自動更新
+└── .github/workflows/daily-update.yml   # 排程：每天 18:00 台灣時間自動更新（含週末）
 ```
 
 ## 部署 / 排程
 
-`.github/workflows/daily-update.yml` 會在每週一到五 UTC 10:00（台灣時間 18:00）自動執行
+`.github/workflows/daily-update.yml` 會**每天**（含週末）UTC 10:00（台灣時間 18:00）自動執行
+（處置股本身是交易日概念，週末不會有新資料；但重大訊息公司偶爾會在假日發布，每天執行
+是為了不漏接這類假日公告）
 `fetch_and_render.py`，並把更新後的 `output/disposal.html` commit 回 repo。
 
 若要用 GitHub Pages 對外發布：
