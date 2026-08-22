@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -39,6 +40,8 @@ SUMMARY_PATH = ROOT_DIR / "output" / "summary.txt"
 MATERIAL_LOG_PATH = ROOT_DIR / "data" / "material_info.json"
 
 REQUEST_TIMEOUT = 15
+FETCH_RETRIES = 3  # 失敗時最多重試幾次（含第一次嘗試），吃掉短暫的空白回應／連線問題
+FETCH_RETRY_DELAY_SECONDS = 3
 
 # 官方 API 每次只回傳「最新一個交易日」的重大訊息批次，無法查詢任意歷史日期。
 # 「依日期查詢」分頁只能查到系統開始執行、累積 data/material_info.json 之後的日子，
@@ -62,13 +65,19 @@ class DisposalRecord:
 
 
 def fetch_json(url: str) -> tuple[list[dict] | None, str | None]:
-    """抓取 API JSON，失敗時回傳 (None, 錯誤訊息)。"""
-    try:
-        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
-        resp.raise_for_status()
-        return resp.json(), None
-    except Exception as exc:  # noqa: BLE001 - 任何錯誤都要讓網頁照樣產出
-        return None, f"{url} 抓取失敗：{exc}"
+    """抓取 API JSON，失敗時自動重試幾次（吃掉短暫的空白回應／連線問題），
+    仍然失敗才回傳 (None, 錯誤訊息)。"""
+    last_error: Exception | None = None
+    for attempt in range(1, FETCH_RETRIES + 1):
+        try:
+            resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+            resp.raise_for_status()
+            return resp.json(), None
+        except Exception as exc:  # noqa: BLE001 - 任何錯誤都要讓網頁照樣產出
+            last_error = exc
+            if attempt < FETCH_RETRIES:
+                time.sleep(FETCH_RETRY_DELAY_SECONDS)
+    return None, f"{url} 抓取失敗（已重試 {FETCH_RETRIES} 次）：{last_error}"
 
 
 def roc_to_ad(roc_str: str) -> str:
