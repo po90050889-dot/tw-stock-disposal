@@ -284,9 +284,10 @@ def material_entry_to_display(entry: dict) -> dict:
 
 def render(
     records: list[DisposalRecord],
-    today_material_infos: list[dict],
+    latest_material_infos: list[dict],
     material_log_display: list[dict],
     today_iso: str,
+    latest_material_date_iso: str,
     errors: list[str],
     generated_at: datetime,
 ) -> str:
@@ -310,14 +311,15 @@ def render(
 
     return template.render(
         records=sorted(records, key=lambda r: (r.market, r.code)),
-        material_infos=sorted(today_material_infos, key=lambda m: (m["market"], m["code"])),
+        material_infos=sorted(latest_material_infos, key=lambda m: (m["market"], m["code"])),
         material_log=sorted(material_log_display, key=lambda m: m["announce_date_iso"], reverse=True),
         today_iso=today_iso,
         min_date_iso=min_date_iso,
+        latest_material_date_iso=latest_material_date_iso,
         total_count=len(records),
         listed_count=listed_count,
         otc_count=otc_count,
-        material_count=len(today_material_infos),
+        material_count=len(latest_material_infos),
         material_retention_days=MATERIAL_RETENTION_DAYS,
         errors=errors,
         generated_at=generated_at.strftime("%Y-%m-%d %H:%M:%S %Z"),
@@ -326,18 +328,24 @@ def render(
 
 def build_summary_text(
     active_records: list[DisposalRecord],
-    today_material_infos: list[dict],
+    latest_material_infos: list[dict],
+    latest_material_date_iso: str,
     errors: list[str],
     generated_at: datetime,
 ) -> str:
-    """給 GitHub Actions 推播（例如 Telegram）用的純文字摘要。"""
+    """給 GitHub Actions 推播（例如 Telegram）用的純文字摘要。
+
+    重大訊息一律標「最新可查到的日期」而非「今日」：TWSE／TPEx 這兩個 API 公佈當天
+    完整批次的時間點通常晚於我們執行排程的時間，導致「今日」在執行當下幾乎總是 0 則，
+    隔天才會補上——與其誤導使用者以為今天沒有任何重大訊息，不如直接標明實際日期。
+    """
     listed_count = sum(1 for r in active_records if r.market == "上市")
     otc_count = sum(1 for r in active_records if r.market == "上櫃")
 
     lines = [
         f"📊 台股每日處置股 {generated_at.strftime('%Y-%m-%d')}",
         f"今日處置股：{len(active_records)} 檔（上市 {listed_count}、上櫃 {otc_count}）",
-        f"今日重大訊息：{len(today_material_infos)} 則",
+        f"最新重大訊息（{latest_material_date_iso}）：{len(latest_material_infos)} 則",
     ]
     if errors:
         lines.append(f"⚠ {len(errors)} 個資料源抓取失敗，詳見網頁上方標註")
@@ -394,9 +402,25 @@ def main() -> int:
 
     material_log_display = [material_entry_to_display(e) for e in material_log]
     today_iso = now.date().isoformat()
-    today_material_infos = [m for m in material_log_display if m["announce_date_iso"] == today_iso]
+    # TWSE／TPEx 公佈當天完整重大訊息批次的時間通常晚於排程執行時間，「今日」在執行當下
+    # 幾乎總是 0 則；改成一律顯示「資料庫裡最新一天實際有資料的日期」，讓網頁與 Telegram
+    # 推播打開就有內容可看，不用等到隔天。
+    latest_material_date_iso = max(
+        (m["announce_date_iso"] for m in material_log_display), default=today_iso
+    )
+    latest_material_infos = [
+        m for m in material_log_display if m["announce_date_iso"] == latest_material_date_iso
+    ]
 
-    html = render(active_records, today_material_infos, material_log_display, today_iso, errors, now)
+    html = render(
+        active_records,
+        latest_material_infos,
+        material_log_display,
+        today_iso,
+        latest_material_date_iso,
+        errors,
+        now,
+    )
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(html, encoding="utf-8")
@@ -408,12 +432,13 @@ def main() -> int:
         encoding="utf-8",
     )
     SUMMARY_PATH.write_text(
-        build_summary_text(active_records, today_material_infos, errors, now), encoding="utf-8"
+        build_summary_text(active_records, latest_material_infos, latest_material_date_iso, errors, now),
+        encoding="utf-8",
     )
 
     print(
         f"已產出 {OUTPUT_PATH}（{len(active_records)} 檔今日處置中、"
-        f"{len(today_material_infos)} 則今日重大訊息、累積 {len(material_log_display)} 則可查詢、"
+        f"{latest_material_date_iso} 共 {len(latest_material_infos)} 則重大訊息、累積 {len(material_log_display)} 則可查詢、"
         f"{len(errors)} 個錯誤）"
     )
     for err in errors:

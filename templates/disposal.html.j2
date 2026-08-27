@@ -383,8 +383,10 @@
   </div>
 
   <div class="tab-panel" data-panel="stockinfo">
-  <p class="meta">全體上市／上櫃公司，今日公告之重大訊息（新訂單、財報、營收公告…等），
-    共 {{ material_count }} 則。與處置股清單彼此獨立、不限於處置股。</p>
+  <p class="meta">全體上市／上櫃公司，最新一天已公告之重大訊息（{{ latest_material_date_iso }}，
+    新訂單、財報、營收公告…等），共 {{ material_count }} 則。與處置股清單彼此獨立、不限於
+    處置股。（TWSE／TPEx 公佈完整批次的時間通常晚於本頁產出時間，因此不是固定顯示「今天」，
+    而是資料庫裡最新一天實際有資料的日期。）</p>
   <table>
     <thead>
       <tr>
@@ -426,7 +428,7 @@
         </tr>
         {% endfor %}
       {% else %}
-        <tr class="empty-row"><td colspan="6">今日無重大訊息資料</td></tr>
+        <tr class="empty-row"><td colspan="6">目前尚無累積到任何重大訊息資料</td></tr>
       {% endif %}
     </tbody>
   </table>
@@ -438,7 +440,7 @@
     早於系統開始收集資料的日子查不到。</p>
   <div class="date-query-bar">
     <label for="date-query-input">選擇日期：</label>
-    <input type="date" id="date-query-input" value="{{ today_iso }}" min="{{ min_date_iso }}" max="{{ today_iso }}">
+    <input type="date" id="date-query-input" value="{{ latest_material_date_iso }}" min="{{ min_date_iso }}" max="{{ today_iso }}">
   </div>
   <table>
     <thead>
