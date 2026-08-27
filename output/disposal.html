@@ -169,6 +169,29 @@
     color-scheme: dark;
   }
 
+  .keyword-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .keyword-search-bar label { color: var(--text-dim); font-size: 0.9rem; }
+  .keyword-search-bar input[type="text"] {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    width: 220px;
+  }
+  .keyword-search-count {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+
   .news-query-bar {
     display: flex;
     align-items: center;
@@ -303,7 +326,7 @@
 <div class="container">
   <header>
     <h1>台股每日處置股</h1>
-    <p class="meta">產出時間：2026-08-27 14:28:41 CST（Asia/Taipei）　資料來源：TWSE 上市、TPEx 上櫃公開 API</p>
+    <p class="meta">產出時間：2026-08-27 14:37:04 CST（Asia/Taipei）　資料來源：TWSE 上市、TPEx 上櫃公開 API</p>
   </header>
 
   
@@ -861,6 +884,11 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
     新訂單、財報、營收公告…等），共 224 則。與處置股清單彼此獨立、不限於
     處置股。（TWSE／TPEx 公佈完整批次的時間通常晚於本頁產出時間，因此不是固定顯示「今天」，
     而是資料庫裡最新一天實際有資料的日期。）</p>
+  <div class="keyword-search-bar">
+    <label for="stockinfo-search-input">關鍵字篩選：</label>
+    <input type="text" id="stockinfo-search-input" placeholder="例如：營收、新訂單、代號、名稱">
+    <span class="keyword-search-count" id="stockinfo-search-count"></span>
+  </div>
   <table>
     <thead>
       <tr>
@@ -872,10 +900,10 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
         <th>相關連結</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="stockinfo-tbody">
       
         
-        <tr>
+        <tr data-search="1101 台泥 本公司受邀參加富邦證券舉辦之法人座談會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -907,7 +935,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1304 台聚 代重要子公司旭騰投資有限公司公告財務主管異動">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -941,7 +969,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1304 台聚 代重要子公司恆凱環球有限公司公告財務主管異動">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -975,7 +1003,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1326 台化 本公司受邀參加華南永昌證券舉辦之法人說明會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1006,7 +1034,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1514 亞力 公告本公司受邀參加台新證券2026第三季全球投資論壇">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1037,7 +1065,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1516 川飛 公告本公司訂定減資基準日">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1090,7 +1118,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1517 利奇 公告本公司董事長訂定115年配發114年度現金股利除息基準日事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1131,7 +1159,8 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1626 艾美特-ky 更公告更正本公司115年7月「背書保證資訊揭露明細表」
+部分資訊">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1142,7 +1171,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>更公告更正本公司115年7月「背書保證資訊揭露明細表」
+              <summary>更公告更正本公司115年7月「背書保證資訊揭露明細表」
 部分資訊</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -1169,7 +1198,8 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1717 長興 公告本公司115年度現金增資催繳期間屆滿
+暨股票發放事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1180,7 +1210,7 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司115年度現金增資催繳期間屆滿
+              <summary>公告本公司115年度現金增資催繳期間屆滿
 暨股票發放事宜</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -1209,7 +1239,9 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1721 三晃 公告本公司名稱由「三晃股份有限公司」更名為
+「國慶科技股份有限公司」
+，公告期間：115年07月01日至115年9月30日。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1220,8 +1252,8 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司名稱由「三晃股份有限公司」更名為
-「國慶科技股份有限公司」
+              <summary>公告本公司名稱由「三晃股份有限公司」更名為
+「國慶科技股份有限公司」
 ，公告期間：115年07月01日至115年9月30日。</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -1251,7 +1283,9 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1795 美時 代子公司norwich pharmaceuticals, inc.公告其
+rifaximin學名藥藥證申請相關上訴案美國聯邦法院判
+決結果">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1262,8 +1296,8 @@ ii臺灣證券交易所股份有限公司公布或通知注意交易資訊暨處
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司Norwich Pharmaceuticals, Inc.公告其
-Rifaximin學名藥藥證申請相關上訴案美國聯邦法院判
+              <summary>代子公司Norwich Pharmaceuticals, Inc.公告其
+Rifaximin學名藥藥證申請相關上訴案美國聯邦法院判
 決結果</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -1293,7 +1327,9 @@ Health之2025年年度報告，原廠藥Xifaxan截至2025年12月止前12個月�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2072 世紀風電 公告本公司名稱由「世紀離岸風電設備股份有限公司」更名
+為「世紀能源設備股份有限公司」，公告期間：115年8月26日至
+115年11月25日。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1304,8 +1340,8 @@ Health之2025年年度報告，原廠藥Xifaxan截至2025年12月止前12個月�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司名稱由「世紀離岸風電設備股份有限公司」更名
-為「世紀能源設備股份有限公司」，公告期間：115年8月26日至
+              <summary>公告本公司名稱由「世紀離岸風電設備股份有限公司」更名
+為「世紀能源設備股份有限公司」，公告期間：115年8月26日至
 115年11月25日。</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -1338,7 +1374,7 @@ Health之2025年年度報告，原廠藥Xifaxan截至2025年12月止前12個月�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2303 聯電 本公司董事會決議發行海外第七次無擔保轉換公司債">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1402,7 +1438,7 @@ Health之2025年年度報告，原廠藥Xifaxan截至2025年12月止前12個月�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2317 鴻海 代子公司q-edge corporation公告取得土地及廠房">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1493,7 +1529,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2317 鴻海 公告本公司115年度第3期無擔保普通公司債主要發行條件">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1542,7 +1578,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2323 中環 公告本公司處分有價證券">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1603,7 +1639,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2323 中環 公告本公司處分有價證券">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1664,7 +1700,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2323 中環 公告本公司處分有價證券">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1725,7 +1761,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2360 致茂 澄清媒體報導">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1758,7 +1794,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2375 凱美 本公司受邀參加凱基證券舉辦之線上法人說明會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1789,7 +1825,8 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2376 技嘉 代重要子公司寧波技嘉科技有限公司公告董事會決議
+盈餘分配案">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1800,7 +1837,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司寧波技嘉科技有限公司公告董事會決議
+              <summary>代重要子公司寧波技嘉科技有限公司公告董事會決議
 盈餘分配案</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -1816,7 +1853,8 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2383 台光電 代重要子公司emc overseas holding incorporated
+公告盈餘分配案">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1827,7 +1865,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司EMC OVERSEAS HOLDING INCORPORATED
+              <summary>代重要子公司EMC OVERSEAS HOLDING INCORPORATED
 公告盈餘分配案</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -1843,7 +1881,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2383 台光電 本公司受邀參加台新證券舉辦之「台新2026年第三季全球投資論壇」">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1874,7 +1912,8 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2388 威盛 代子公司viabase co., ltd公告取得金融資產: 
+achi capital partners global fund ii lp">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1885,7 +1924,7 @@ VALBRIDGE:Maria Aji, PhD Director, AG027130<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司VIABASE CO., LTD公告取得金融資產: 
+              <summary>代子公司VIABASE CO., LTD公告取得金融資產: 
 ACHI CAPITAL PARTNERS GLOBAL FUND II LP</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -1962,7 +2001,8 @@ ACHI CAPITAL PARTNERS GLOBAL FUND II LP<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2388 威盛 代子公司viabase co., ltd公告取得金融資產:
+zhongfang capital partners asia opportunities fund ii lp">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -1973,7 +2013,7 @@ ACHI CAPITAL PARTNERS GLOBAL FUND II LP<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司VIABASE CO., LTD公告取得金融資產:
+              <summary>代子公司VIABASE CO., LTD公告取得金融資產:
 ZHONGFANG CAPITAL PARTNERS ASIA OPPORTUNITIES FUND II LP</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -2051,7 +2091,7 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2412 中華電 本公司將參加goldman sachs舉辦之投資人會議">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2082,7 +2122,8 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2464 盟立 公告本公司115年現金增資認股基準日相關事宜
+(補充公告發行價格及代收、存儲機構)">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2093,7 +2134,7 @@ FUND II LP ; 非關係人<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司115年現金增資認股基準日相關事宜
+              <summary>公告本公司115年現金增資認股基準日相關事宜
 (補充公告發行價格及代收、存儲機構)</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -2142,7 +2183,8 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2474 可成 代子公司益釧股份有限公司公告一年內累積取得
+聯合骨科器材股份有限公司普通股股票達新台幣三億元以上">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2153,7 +2195,7 @@ FUND II LP ; 非關係人<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司益釧股份有限公司公告一年內累積取得
+              <summary>代子公司益釧股份有限公司公告一年內累積取得
 聯合骨科器材股份有限公司普通股股票達新台幣三億元以上</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -2207,7 +2249,7 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2852 第一保 本公司提報董事會115年第二季財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2245,7 +2287,8 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2852 第一保 公告本公司董事會決議改制「薪資報酬委員會」
+為「薪資報酬暨提名委員會」">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2256,7 +2299,7 @@ FUND II LP ; 非關係人<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司董事會決議改制「薪資報酬委員會」
+              <summary>公告本公司董事會決議改制「薪資報酬委員會」
 為「薪資報酬暨提名委員會」</summary>
               <div class="full-reason">
                 （第6款）<br>
@@ -2281,7 +2324,7 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2881 富邦金 公告本公司參加goldman sachs asia leaders conference 2026">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2312,7 +2355,8 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2885 元大金 元大金控代子公司元大投信公告董事會通過對關係人
+捐贈事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2323,7 +2367,7 @@ FUND II LP ; 非關係人<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>元大金控代子公司元大投信公告董事會通過對關係人
+              <summary>元大金控代子公司元大投信公告董事會通過對關係人
 捐贈事宜</summary>
               <div class="full-reason">
                 （第43款）<br>
@@ -2344,7 +2388,8 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2885 元大金 元大金控代子公司元大證券公告取得
+中國信託商業銀行一一五年度第一百五十期無擔保次順位金融債券">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2355,7 +2400,7 @@ FUND II LP ; 非關係人<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>元大金控代子公司元大證券公告取得
+              <summary>元大金控代子公司元大證券公告取得
 中國信託商業銀行一一五年度第一百五十期無擔保次順位金融債券</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -2445,7 +2490,8 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2885 元大金 元大金控公告訂定與元大證券投資信託股份有限公司股份
+轉換基準日暨增資基準日(更正115年8月24日公告內容)">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2456,7 +2502,7 @@ FUND II LP ; 非關係人<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>元大金控公告訂定與元大證券投資信託股份有限公司股份
+              <summary>元大金控公告訂定與元大證券投資信託股份有限公司股份
 轉換基準日暨增資基準日(更正115年8月24日公告內容)</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -2491,7 +2537,7 @@ FUND II LP ; 非關係人<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2886 兆豐金 代本公司之子公司兆豐國際商業銀行公告授信資產之轉讓。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2581,7 +2627,8 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2886 兆豐金 代本公司之子公司兆豐期貨股份有限公司公告董事會
+決議辦理現金增資發行新股">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2592,7 +2639,7 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代本公司之子公司兆豐期貨股份有限公司公告董事會
+              <summary>代本公司之子公司兆豐期貨股份有限公司公告董事會
 決議辦理現金增資發行新股</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -2623,7 +2670,7 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2886 兆豐金 代本公司之子公司兆豐證券公告認購兆豐期貨現金增資">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2724,7 +2771,7 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2887 台新新光金 本公司代子公司台新資產公告董事長選任事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2759,7 +2806,8 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2887 台新新光金 本公司代子公司台新資產公告董事會代行股東臨時會
+重要決議事項">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2770,7 +2818,7 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司代子公司台新資產公告董事會代行股東臨時會
+              <summary>本公司代子公司台新資產公告董事會代行股東臨時會
 重要決議事項</summary>
               <div class="full-reason">
                 （第18款）<br>
@@ -2786,7 +2834,7 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2889 國票金 公告本公司董事會通過115年第二季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2824,7 +2872,8 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2889 國票金 公告本公司獨立董事對第九屆董事會第四次會議討論事項
+第二十案表示反對意見">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2835,7 +2884,7 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司獨立董事對第九屆董事會第四次會議討論事項
+              <summary>公告本公司獨立董事對第九屆董事會第四次會議討論事項
 第二十案表示反對意見</summary>
               <div class="full-reason">
                 （第44款）<br>
@@ -2865,7 +2914,8 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2889 國票金 公告本公司獨立董事對第九屆董事會第四次會議臨時討論事項
+案表示反對意見">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2876,7 +2926,7 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司獨立董事對第九屆董事會第四次會議臨時討論事項
+              <summary>公告本公司獨立董事對第九屆董事會第四次會議臨時討論事項
 案表示反對意見</summary>
               <div class="full-reason">
                 （第44款）<br>
@@ -2911,7 +2961,8 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2890 永豐金 永豐金控代子公司永豐金證券(亞洲)有限公司公告
+內部稽核主管異動">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2922,7 +2973,7 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>永豐金控代子公司永豐金證券(亞洲)有限公司公告
+              <summary>永豐金控代子公司永豐金證券(亞洲)有限公司公告
 內部稽核主管異動</summary>
               <div class="full-reason">
                 （第8款）<br>
@@ -2947,7 +2998,8 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2890 永豐金 永豐金控代子公司永豐銀行公告發行115年第1期無擔保主
+順位金融債券新臺幣10億元">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -2958,7 +3010,7 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>永豐金控代子公司永豐銀行公告發行115年第1期無擔保主
+              <summary>永豐金控代子公司永豐銀行公告發行115年第1期無擔保主
 順位金融債券新臺幣10億元</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -2996,7 +3048,7 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2890 永豐金 永豐金控公告本公司受clsa邀請參加海外投資人會議">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3027,7 +3079,9 @@ United Taiwan Bank, S.A.<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2891 中信金 本公司代子公司中國信託商業銀行公告發行
+一一五年度第一百五十期無擔保次順位金融債券
+新臺幣104億元整(補充115/03/27公告)">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3038,8 +3092,8 @@ United Taiwan Bank, S.A.<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司代子公司中國信託商業銀行公告發行
-一一五年度第一百五十期無擔保次順位金融債券
+              <summary>本公司代子公司中國信託商業銀行公告發行
+一一五年度第一百五十期無擔保次順位金融債券
 新臺幣104億元整(補充115/03/27公告)</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -3091,7 +3145,8 @@ B券自民國115年9月8日發行，無到期日。<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2891 中信金 代子公司ctbc asia limited公告擬辦理現金增資
+港幣2億5,000萬元">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3102,7 +3157,7 @@ B券自民國115年9月8日發行，無到期日。<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司CTBC Asia Limited公告擬辦理現金增資
+              <summary>代子公司CTBC Asia Limited公告擬辦理現金增資
 港幣2億5,000萬元</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -3133,7 +3188,8 @@ B券自民國115年9月8日發行，無到期日。<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2891 中信金 代子公司中國信託綜合證券公告董事會決議通過認購
+子公司ctbc asia limited現金增資股款港幣2億5,000萬元">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3144,7 +3200,7 @@ B券自民國115年9月8日發行，無到期日。<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司中國信託綜合證券公告董事會決議通過認購
+              <summary>代子公司中國信託綜合證券公告董事會決議通過認購
 子公司CTBC Asia Limited現金增資股款港幣2億5,000萬元</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -3227,7 +3283,8 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2908 特力 代重要&amp;#12070;公司test-rite products corp.公告向關係&amp;#12040;
+取得使用權資產">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3238,7 +3295,7 @@ CTBC Asia Limited<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要&amp;#12070;公司Test-Rite Products Corp.公告向關係&amp;#12040;
+              <summary>代重要&amp;#12070;公司Test-Rite Products Corp.公告向關係&amp;#12040;
 取得使用權資產</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -3322,7 +3379,8 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3006 晶豪科 公告本公司發行國內第二次有擔保轉換公司債案向金管會
+申請延長募集期間">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3333,7 +3391,7 @@ CTBC Asia Limited<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司發行國內第二次有擔保轉換公司債案向金管會
+              <summary>公告本公司發行國內第二次有擔保轉換公司債案向金管會
 申請延長募集期間</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -3361,7 +3419,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3037 欣興 本公司取得廠務工程之相關資料">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3449,7 +3507,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3049 精金 公告本公司董事會通過公司遷址案">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3484,7 +3542,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3049 精金 公告本公司董事會通過投資聯欣投資有限合夥">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3575,7 +3633,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3052 夆典 代子公司昌吉營造股份有限公司公告除息基準日">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3607,7 +3665,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3059 華晶科 公告本公司限制員工權利新股註銷完成變更登記事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3648,7 +3706,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3189 景碩 澄清媒體報導">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3681,7 +3739,7 @@ CTBC Asia Limited<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3311 閎暉 本公司取得fdk株式會社私募無擔保可轉換公司債">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3773,7 +3831,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3311 閎暉 代子公司fdk株式會社公告董事會決議發行私募無擔保
+可轉換公司債">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3784,7 +3843,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司FDK株式會社公告董事會決議發行私募無擔保
+              <summary>代子公司FDK株式會社公告董事會決議發行私募無擔保
 可轉換公司債</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -3821,7 +3880,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3356 奇偶 受邀參加統一證券舉辦之法人說明會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3852,7 +3911,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3494 誠研 更正本公司114年11月及12月115年1月
+資金貸與及營運週轉資訊揭露明細表">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3863,7 +3923,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>更正本公司114年11月及12月115年1月
+              <summary>更正本公司114年11月及12月115年1月
 資金貸與及營運週轉資訊揭露明細表</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -3898,7 +3958,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3528 安馳 公告本公司受邀參加統一綜合證券舉辦之法人說明會。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3929,7 +3989,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3596 智易 本公司受邀參加機構投資人說明會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3960,7 +4020,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3653 健策 應主管機關要求說明媒體報導">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -3994,7 +4054,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3694 海華 本公司將收買已發行之限制員工權利新股辦理註銷完成公告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4034,7 +4094,9 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3708 上緯投控 公告本公司名稱由「上緯國際投資控股股份有限公司」更名為
+「上緯國際控股股份有限公司」，公告期間：115年6月11日至
+115年9月10日。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4045,8 +4107,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司名稱由「上緯國際投資控股股份有限公司」更名為
-「上緯國際控股股份有限公司」，公告期間：115年6月11日至
+              <summary>公告本公司名稱由「上緯國際投資控股股份有限公司」更名為
+「上緯國際控股股份有限公司」，公告期間：115年6月11日至
 115年9月10日。</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -4076,7 +4138,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司日月光半導體製造(股)公司公告
+向萬潤科技股份有限公司取得供營業用之機器設備">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4087,7 +4150,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司日月光半導體製造(股)公司公告
+              <summary>代子公司日月光半導體製造(股)公司公告
 向萬潤科技股份有限公司取得供營業用之機器設備</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -4169,7 +4232,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司日月光半導體製造(股)公司公告
+向kla corporation取得供營業用之機器設備">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4180,7 +4244,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司日月光半導體製造(股)公司公告
+              <summary>代子公司日月光半導體製造(股)公司公告
 向KLA CORPORATION取得供營業用之機器設備</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -4262,7 +4326,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司日月光半導體製造(股)公司公告
+向凱彥科技股份有限公司取得供營業用之機器設備">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4273,7 +4338,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司日月光半導體製造(股)公司公告
+              <summary>代子公司日月光半導體製造(股)公司公告
 向凱彥科技股份有限公司取得供營業用之機器設備</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -4355,7 +4420,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司日月光半導體製造(股)公司公告
+向九合工程股份有限公司取得供營業用之廠務工程">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4366,7 +4432,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司日月光半導體製造(股)公司公告
+              <summary>代子公司日月光半導體製造(股)公司公告
 向九合工程股份有限公司取得供營業用之廠務工程</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -4448,7 +4514,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司環旭電子(股)公司公告決議增資上海環興光電有限公司">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4549,7 +4615,8 @@ FDK株式會社私募無擔保可轉換公司債<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司環旭電子公告增資其間接持有子公司universal scientific 
+industrial vietnam company limited">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4560,7 +4627,7 @@ FDK株式會社私募無擔保可轉換公司債<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司環旭電子公告增資其間接持有子公司Universal Scientific 
+              <summary>代子公司環旭電子公告增資其間接持有子公司Universal Scientific 
 Industrial Vietnam Company Limited</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -4651,7 +4718,8 @@ Industrial Vietnam Company Limited增資<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司環旭電子(股)公司公告董事會決議發行2026年員工
+認股權憑證事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4662,7 +4730,7 @@ Industrial Vietnam Company Limited增資<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司環旭電子(股)公司公告董事會決議發行2026年員工
+              <summary>代子公司環旭電子(股)公司公告董事會決議發行2026年員工
 認股權憑證事宜</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -4764,7 +4832,8 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司環旭電子(股)公司公告董事會決議通過2026年員工
+持股計畫案">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4775,7 +4844,7 @@ P= P0-V<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司環旭電子(股)公司公告董事會決議通過2026年員工
+              <summary>代子公司環旭電子(股)公司公告董事會決議通過2026年員工
 持股計畫案</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -4823,7 +4892,8 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3711 日月光投控 代子公司環旭電子(股)公司公告董事會決議召開2026年第一
+次臨時股東會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4834,7 +4904,7 @@ P= P0-V<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司環旭電子(股)公司公告董事會決議召開2026年第一
+              <summary>代子公司環旭電子(股)公司公告董事會決議召開2026年第一
 次臨時股東會</summary>
               <div class="full-reason">
                 （第17款）<br>
@@ -4871,7 +4941,8 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3712 永崴投控 代子公司森崴能源股份有限公司公告其對胡正杰先生公開收購普通股股份之審議委員
+會結果">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -4941,7 +5012,8 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3712 永崴投控 代子公司森崴能源股份有限公司公告其對胡正杰先生公開收購本
+公司普通股股份之相關事宜說明">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5064,7 +5136,7 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4148 全宇生技-ky 公告本公司董事會通過115年第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5102,7 +5174,7 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4148 全宇生技-ky 董事會決議不分派半年度股利">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5140,7 +5212,9 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4148 全宇生技-ky 代子公司全宇工業有限公司依公開發行公司
+資金貸與及背書保證處理準則第二十二條
+第一項第三款之規定公告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5151,8 +5225,8 @@ P= P0-V<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司全宇工業有限公司依公開發行公司
-資金貸與及背書保證處理準則第二十二條
+              <summary>代子公司全宇工業有限公司依公開發行公司
+資金貸與及背書保證處理準則第二十二條
 第一項第三款之規定公告</summary>
               <div class="full-reason">
                 （第23款）<br>
@@ -5200,7 +5274,7 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4557 永新-ky 公告本公司董事會重要決議事項">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5237,7 +5311,7 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4557 永新-ky 公告本公司董事會通過115年第二季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5275,7 +5349,7 @@ P= P0-V<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4557 永新-ky 背書保證達處理準則第25條第一項第四款應公告申報事項">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5335,7 +5409,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4770 上品 本公司受邀參加富邦證券與台灣證交所舉辦之semicon taiwan corporate day">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5366,7 +5440,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4770 上品 公告本公司受邀參加元大證券所舉辦之「2026年第三季投資論壇」">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5397,7 +5471,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4912 聯德控股-ky 公告本公司調整115年第2季現金股利配息率">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5433,7 +5507,8 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4938 和碩 代重要子公司日麗國際有限公司公告辦理減資資本變更
+登記完成">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5444,7 +5519,7 @@ USD500萬+CNY2000萬
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司日麗國際有限公司公告辦理減資資本變更
+              <summary>代重要子公司日麗國際有限公司公告辦理減資資本變更
 登記完成</summary>
               <div class="full-reason">
                 （第36款）<br>
@@ -5471,7 +5546,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4943 康控-ky 公告本公司董事會通過115年第二季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5509,7 +5584,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4943 康控-ky 代子公司公告背書保證改善計畫">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5552,7 +5627,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4943 康控-ky 代子公司concraft technology co., ltd.公告辦理解散清算">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5584,7 +5659,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4958 臻鼎-ky 代子公司慶鼎精密電子(淮安)有限公司公告取得機器設備">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5674,7 +5749,7 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4958 臻鼎-ky 代子公司慶鼎精密電子(淮安)有限公司公告取得機器設備">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5764,7 +5839,8 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5607 遠雄港 公告本公司訂於115年08月27日發放現金股利，如因颱風影響
+部分地區之現金股利發放將順延至下一個營業日">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5775,7 +5851,7 @@ USD500萬+CNY2000萬
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司訂於115年08月27日發放現金股利，如因颱風影響
+              <summary>公告本公司訂於115年08月27日發放現金股利，如因颱風影響
 部分地區之現金股利發放將順延至下一個營業日</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -5796,7 +5872,8 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5871 中租-ky 公告本公司為子公司chailease berjaya credit sdn. bhd.
+提供背書並簽訂保證合約">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5807,7 +5884,7 @@ USD500萬+CNY2000萬
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司為子公司Chailease Berjaya Credit Sdn. Bhd.
+              <summary>公告本公司為子公司Chailease Berjaya Credit Sdn. Bhd.
 提供背書並簽訂保證合約</summary>
               <div class="full-reason">
                 （第10款）<br>
@@ -5838,7 +5915,8 @@ USD500萬+CNY2000萬
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5871 中租-ky 代重要子公司chailease international company（uk）
+limited公告董事會決議股利分配案">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5849,7 +5927,7 @@ USD500萬+CNY2000萬
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司Chailease International Company（UK）
+              <summary>代重要子公司Chailease International Company（UK）
 Limited公告董事會決議股利分配案</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -5865,7 +5943,9 @@ Limited公告董事會決議股利分配案</summary>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5871 中租-ky 本公司為子公司chailease royal finance plc.、chailease
+berjaya credit sdn. bhd.及仲利國際融資租賃有限公司提供
+背書保證，依公開發行公司資金貸與及背書保證處理準則公告。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5876,8 +5956,8 @@ Limited公告董事會決議股利分配案</summary>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司為子公司Chailease Royal Finance Plc.、Chailease
-Berjaya Credit Sdn. Bhd.及仲利國際融資租賃有限公司提供
+              <summary>本公司為子公司Chailease Royal Finance Plc.、Chailease
+Berjaya Credit Sdn. Bhd.及仲利國際融資租賃有限公司提供
 背書保證，依公開發行公司資金貸與及背書保證處理準則公告。</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -5954,7 +6034,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5871 中租-ky 本公司民國115年度第二季合併財務報告業經董事會決議通過">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -5992,7 +6072,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6024 群益期 公告本公司發言人異動">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6026,7 +6106,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6024 群益期 公告本公司董事會通過115年第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6065,7 +6145,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6176 瑞儀 公告本公司董事會決議事項">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6104,7 +6184,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6176 瑞儀 公告本公司內部稽核主管異動">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6138,7 +6218,8 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6214 精誠 補充說明114/11/28與伊藤忠商事株式會社
+簽訂合作備忘錄後續投資進度">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6149,7 +6230,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>補充說明114/11/28與伊藤忠商事株式會社
+              <summary>補充說明114/11/28與伊藤忠商事株式會社
 簽訂合作備忘錄後續投資進度</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -6172,7 +6253,9 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6226 光鼎 係因本公司有價證券於集中交易市場達公布注意交易資訊
+標準，故公布相關財務業務等重大訊息，以利投資人區別
+瞭解。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6183,8 +6266,8 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>係因本公司有價證券於集中交易市場達公布注意交易資訊
-標準，故公布相關財務業務等重大訊息，以利投資人區別
+              <summary>係因本公司有價證券於集中交易市場達公布注意交易資訊
+標準，故公布相關財務業務等重大訊息，以利投資人區別
 瞭解。</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -6226,7 +6309,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6239 力成 本公司訂購機器設備公告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6312,7 +6395,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6414 樺漢 公告本公司發言人異動">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6346,7 +6429,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6431 光麗-ky 公告本公司董事會通過115年第二季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6384,7 +6467,8 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6431 光麗-ky 公告新增背書保證金額達處理準則二十五條第一項第二款
+之規定辦理">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6395,7 +6479,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告新增背書保證金額達處理準則二十五條第一項第二款
+              <summary>公告新增背書保證金額達處理準則二十五條第一項第二款
 之規定辦理</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -6445,7 +6529,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6449 鈺邦 公告本公司限制員工權利新股收回註銷完成實收資本額變更登記">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6481,7 +6565,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6451 訊芯-ky 公告本公司董事會通過2026年(115)第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6519,7 +6603,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6451 訊芯-ky 公告本公司業務處資深處長晉升協理職務">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6553,7 +6637,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6451 訊芯-ky 公告本公司設置永續長">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6587,7 +6671,8 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6451 訊芯-ky 公告本公司董事會決議擬於子公司訊芯越南
+建置bumping/rdl製程投資計畫案">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6598,7 +6683,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司董事會決議擬於子公司訊芯越南
+              <summary>公告本公司董事會決議擬於子公司訊芯越南
 建置Bumping/RDL製程投資計畫案</summary>
               <div class="full-reason">
                 （第15款）<br>
@@ -6620,7 +6705,7 @@ Finance Plc.：1,466,828/Chailease Berjaya Credit Sdn. Bhd.：5,105,333/<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6451 訊芯-ky 公告本公司擬向關係人出售機器設備">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6713,7 +6798,7 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱「訊芯越南」)<br
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6451 訊芯-ky 公告董事會決議透過100%子公司訊芯香港間接增資訊芯越南">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6812,7 +6897,7 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱：訊芯越南)<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6658 聯策 本公司受邀參加櫃買中心及永豐金證券舉辦之2026年半導體展高峰論壇">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6843,7 +6928,7 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱：訊芯越南)<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6887 寶綠特-ky 公告本公司因會計師事務所內部輪調更換會計師">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6903,7 +6988,7 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱：訊芯越南)<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6887 寶綠特-ky 公告本公司董事會通過115年第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6941,7 +7026,7 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱：訊芯越南)<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6908 宏碁遊戲-創 代子公司winking studios limited公告庫藏股執行情形">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6985,7 +7070,8 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱：訊芯越南)<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6919 康霈* 本公司新藥cbl-514注射劑樞紐三期臨床試驗cbl-0301向
+加拿大hc提出試驗變更案已核准執行。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -6996,7 +7082,7 @@ ShunSin Technology (Vietnam) Company Limited (以下簡稱：訊芯越南)<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司新藥CBL-514注射劑樞紐三期臨床試驗CBL-0301向
+              <summary>本公司新藥CBL-514注射劑樞紐三期臨床試驗CBL-0301向
 加拿大HC提出試驗變更案已核准執行。</summary>
               <div class="full-reason">
                 （第10款）<br>
@@ -7077,7 +7163,7 @@ D.新藥查驗登記審核 (NDA)：尚未進行。<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6933 amax-ky 公告本公司董事會決議通過115年第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7115,7 +7201,7 @@ D.新藥查驗登記審核 (NDA)：尚未進行。<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6933 amax-ky 公告本公司董事會決議註銷限制員工權利新股之減資基準日">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7153,7 +7239,7 @@ D.新藥查驗登記審核 (NDA)：尚未進行。<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6933 amax-ky 公告本公司董事會追認修訂2026年度限制員工權利新股發行辦法">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7203,7 +7289,8 @@ D.新藥查驗登記審核 (NDA)：尚未進行。<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6933 amax-ky 代子公司amax engineering corporation公告與
+美國小型企業署簽訂和解協議">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7214,7 +7301,7 @@ D.新藥查驗登記審核 (NDA)：尚未進行。<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司AMAX Engineering Corporation公告與
+              <summary>代子公司AMAX Engineering Corporation公告與
 美國小型企業署簽訂和解協議</summary>
               <div class="full-reason">
                 （第2款）<br>
@@ -7247,7 +7334,9 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6933 amax-ky 代重要子公司amax engineering corporation依
+「公開發行公司資金貸與及背書保證處理準則」
+第二十二條第一項第一款公告申報">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7258,8 +7347,8 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司AMAX Engineering Corporation依
-「公開發行公司資金貸與及背書保證處理準則」
+              <summary>代重要子公司AMAX Engineering Corporation依
+「公開發行公司資金貸與及背書保證處理準則」
 第二十二條第一項第一款公告申報</summary>
               <div class="full-reason">
                 （第23款）<br>
@@ -7290,7 +7379,9 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6933 amax-ky 代重要子公司amax engineering corporation依
+「公開發行公司資金貸與及背書保證處理準則」
+第二十二條第一項第二款及第三款公告申報">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7301,8 +7392,8 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司AMAX Engineering Corporation依
-「公開發行公司資金貸與及背書保證處理準則」
+              <summary>代重要子公司AMAX Engineering Corporation依
+「公開發行公司資金貸與及背書保證處理準則」
 第二十二條第一項第二款及第三款公告申報</summary>
               <div class="full-reason">
                 （第23款）<br>
@@ -7349,7 +7440,8 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6949 沛爾生醫-創 公告本公司股票面額由「新台幣10元」變更為「新台幣0.5元」，
+公告期間：115年08月06日至115年11月05日。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7360,7 +7452,7 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司股票面額由「新台幣10元」變更為「新台幣0.5元」，
+              <summary>公告本公司股票面額由「新台幣10元」變更為「新台幣0.5元」，
 公告期間：115年08月06日至115年11月05日。</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -7392,7 +7484,8 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6949 沛爾生醫-創 係因本公司有價證券於集中交易市場達公布注意交易資訊
+標準，故公布相關財務業務等重大訊息，以利投資人區別瞭解">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7403,7 +7496,7 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>係因本公司有價證券於集中交易市場達公布注意交易資訊
+              <summary>係因本公司有價證券於集中交易市場達公布注意交易資訊
 標準，故公布相關財務業務等重大訊息，以利投資人區別瞭解</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -7445,7 +7538,7 @@ AEC配合相關查核程序，並經雙方協商後，就本案與SBA簽訂不�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7769 鴻勁 本公司代子公司top vintage international ltd.公告取得固定收益證券">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7503,7 +7596,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7799 禾榮科 公告本公司以租地委建方式簽訂興建禾榮科技生醫園區創新大樓之工程合約">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7566,7 +7659,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7827 漢康-ky創 公告本公司董事會通過115年第二季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7604,7 +7697,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7827 漢康-ky創 公告本公司董事會決議召開115年第二次股東臨時會相關事宜">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7637,7 +7730,8 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7827 漢康-ky創 公告本公司董事會決議以現金增資發行普通股，
+參與發行美國存託憑證">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7648,7 +7742,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司董事會決議以現金增資發行普通股，
+              <summary>公告本公司董事會決議以現金增資發行普通股，
 參與發行美國存託憑證</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -7688,7 +7782,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8039 台虹 代重要子公司richstar co.,ltd.公告董事會決議不發放股利">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7714,7 +7808,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8046 南電 本公司受邀參加台新證券舉辦之2026年第三季投資論壇">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7745,7 +7839,8 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8422 可寧衛* 代重要子公司大源股份有限公司公告董事會決議
+發行115年度員工認股權憑證">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7756,7 +7851,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司大源股份有限公司公告董事會決議
+              <summary>代重要子公司大源股份有限公司公告董事會決議
 發行115年度員工認股權憑證</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -7883,7 +7978,7 @@ US404280DG12：87,800 單位；US$8.86 佰萬元；持股比例：不適用；�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8499 鼎炫-ky 代子公司隆揚電子(昆山)股份有限公司公告處分存款理財產品">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7978,7 +8073,8 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8996 高力 係因有價證券於集中交易市場達公布注意交易資訊標準，故
+公布基本資料及相關財務業務等重大訊息，以利投資人區別瞭解。">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -7989,7 +8085,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>係因有價證券於集中交易市場達公布注意交易資訊標準，故
+              <summary>係因有價證券於集中交易市場達公布注意交易資訊標準，故
 公布基本資料及相關財務業務等重大訊息，以利投資人區別瞭解。</summary>
               <div class="full-reason">
                 （第51款）<br>
@@ -8028,7 +8124,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="9918 欣天然 公告本公司115年08月28日召開法人說明會">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -8059,7 +8155,8 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="9925 新保 代子公司誼光國際公寓大廈管理維護(股)公司公告
+向關係人新光醫療財團法人提前終止租賃契約">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -8070,7 +8167,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代子公司誼光國際公寓大廈管理維護(股)公司公告
+              <summary>代子公司誼光國際公寓大廈管理維護(股)公司公告
 向關係人新光醫療財團法人提前終止租賃契約</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -8101,7 +8198,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="9958 世紀鋼 公告本公司申請延長現金增資募集期間">
           <td data-label="市場">
             
             <span class="badge badge-listed">上市</span>
@@ -8140,7 +8237,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1591 駿吉-ky 公告本公司董事會通過115年度第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8178,7 +8275,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1591 駿吉-ky 公告本公司董事會決議不分派股利">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8216,7 +8313,9 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1591 駿吉-ky 公告本公司新增對子公司台灣駿吉科技股份有限公司
+背書保證金額達「公開發行公司資金貸與及背書保證
+處理準則」第二十五條第一項第四款之規定">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8227,8 +8326,8 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司新增對子公司台灣駿吉科技股份有限公司
-背書保證金額達「公開發行公司資金貸與及背書保證
+              <summary>公告本公司新增對子公司台灣駿吉科技股份有限公司
+背書保證金額達「公開發行公司資金貸與及背書保證
 處理準則」第二十五條第一項第四款之規定</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -8277,7 +8376,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="1591 駿吉-ky 公告本公司董事會通過內部稽核主管任命案">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8312,7 +8411,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2063 世鎧精密 本公司受邀參加富邦證券舉辦線上法人說明會">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8343,7 +8442,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="2732 六角 代子公司瑞里(杭州)餐飲管理有限公司公告負責人變動">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8379,7 +8478,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3081 聯亞 公告本公司董事會決議通過與客戶簽訂長期供貨合約">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8417,7 +8516,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3081 聯亞 公告本公司董事會決議簽訂磷化銦基板長期採購合約">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8455,7 +8554,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3081 聯亞 公告本公司董事會決議簽訂磷化銦基板採購合約">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8493,7 +8592,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3081 聯亞 公告本公司董事會通過購置機器設備投資案">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8523,7 +8622,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3081 聯亞 公告本公司取得機器設備">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8610,7 +8709,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3105 穩懋 本公司訂購機器設備公告。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8699,7 +8798,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3141 晶宏 公告本公司調整配息率">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8736,7 +8835,8 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3357 臺慶科 更正本公司115年第2季合併財務報告公告及ixbrl
+申報資訊，本次更補正並未影響各期財務報告之損益金額。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8747,7 +8847,7 @@ A36343 期 C26A36343 90天：&amp;#12040;&amp;#11936;幣2,000萬元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>更正本公司115年第2季合併財務報告公告及iXBRL
+              <summary>更正本公司115年第2季合併財務報告公告及iXBRL
 申報資訊，本次更補正並未影響各期財務報告之損益金額。</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -8801,7 +8901,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3363 上詮 本公司受邀參加高盛舉辦之投資人會議(更新時間)">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8832,7 +8932,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3489 森寶 公告本公司董事轉讓持股超過選任時持股之二分之一，
+依法其董事職務當然解任，暨董事變動達三分之一">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8843,7 +8944,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司董事轉讓持股超過選任時持股之二分之一，
+              <summary>公告本公司董事轉讓持股超過選任時持股之二分之一，
 依法其董事職務當然解任，暨董事變動達三分之一</summary>
               <div class="full-reason">
                 （第6款）<br>
@@ -8885,7 +8986,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3489 森寶 公告本公司董事會推選林坡圳擔任董事長">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8922,7 +9023,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3520 華盈 公告本公司私募普通股收足股款暨增資基準日">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -8960,7 +9061,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3548 兆利 代重要子公司兆旺精密製造(浙江)有限公司公告決議辦理現金增資">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9003,7 +9104,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3548 兆利 代重要子公司兆旺科技(上海)有限公司公告增資
+100%轉投資之兆旺精密製造(浙江)有限公司">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9014,7 +9116,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司兆旺科技(上海)有限公司公告增資
+              <summary>代重要子公司兆旺科技(上海)有限公司公告增資
 100%轉投資之兆旺精密製造(浙江)有限公司</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -9113,7 +9215,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3548 兆利 代重要子公司兆旺科技(上海)有限公司公告處分結構性存款商品">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9205,7 +9307,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3594 磐儀 代子公司香港磐旭公告背書保證超限改善計畫">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9246,7 +9348,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3632 研勤 公告本公司辦理減資資本變更登記完成暨換股作業時程">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9323,7 +9425,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3680 家登 本公司受邀參加證券櫃檯買賣中心所舉辦之業績發表會">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9354,7 +9456,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3689 湧德 公告本公司背書保證達「資金貸與及背書保證處理準則」
+第二十五條第一項第一款規定。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9365,7 +9468,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司背書保證達「資金貸與及背書保證處理準則」
+              <summary>公告本公司背書保證達「資金貸與及背書保證處理準則」
 第二十五條第一項第一款規定。</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -9467,7 +9570,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="3689 湧德 公告本公司背書保證達「資金貸與及背書保證處理準則」
+第二十五條第一項第二款、第四款之規定。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9478,7 +9582,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司背書保證達「資金貸與及背書保證處理準則」
+              <summary>公告本公司背書保證達「資金貸與及背書保證處理準則」
 第二十五條第一項第二款、第四款之規定。</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -9528,7 +9632,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4157 太景*-ky 代重要子公司太景生物科技股份有限公司公告法人代表人董事異動">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9564,7 +9668,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4157 太景*-ky 代重要子公司太景醫藥研發(北京)有限公司公告監事異動">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9610,7 +9714,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4157 太景*-ky 公告本公司董事會通過115年第二季合併財報">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9648,7 +9752,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4207 環泰 公告本公司董事會訂定減資基準日">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9694,7 +9798,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4304 勝昱 本公司有價證券近期多次達公布注意交易資訊標準，
+故公告相關訊息，以利投資人區別瞭解。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9705,7 +9810,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司有價證券近期多次達公布注意交易資訊標準，
+              <summary>本公司有價證券近期多次達公布注意交易資訊標準，
 故公告相關訊息，以利投資人區別瞭解。</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -9761,7 +9866,9 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4304 勝昱 本公司有價證券近期多次達公布注意交易資訊標準，
+故公告相關訊息，以利投資人區別瞭解。(更正歸屬母公
+司業主淨利資訊)">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9772,8 +9879,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司有價證券近期多次達公布注意交易資訊標準，
-故公告相關訊息，以利投資人區別瞭解。(更正歸屬母公
+              <summary>本公司有價證券近期多次達公布注意交易資訊標準，
+故公告相關訊息，以利投資人區別瞭解。(更正歸屬母公
 司業主淨利資訊)</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -9829,7 +9936,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4416 三圓 本公司有價證券近期多次達公布注意交易資訊標準，故公告
+相關訊息，以利投資人區別暸解">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9840,7 +9948,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司有價證券近期多次達公布注意交易資訊標準，故公告
+              <summary>本公司有價證券近期多次達公布注意交易資訊標準，故公告
 相關訊息，以利投資人區別暸解</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -9896,7 +10004,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4416 三圓 公告本公司之關係人退票事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9932,7 +10040,9 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4530 天意能創 公告本公司名稱由「宏易創新國際股份有限公司」
+更名為「天意能創股份有限公司」，
+公告期間：115年7月09日至115年10月08日。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -9943,8 +10053,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司名稱由「宏易創新國際股份有限公司」
-更名為「天意能創股份有限公司」，
+              <summary>公告本公司名稱由「宏易創新國際股份有限公司」
+更名為「天意能創股份有限公司」，
 公告期間：115年7月09日至115年10月08日。</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -9973,7 +10083,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4541 晟田 公告本公司訂定115年現金增資認股基準日等相關事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10033,7 +10143,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4706 大恭 本公司受邀參加線上法說會">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10064,7 +10174,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4745 合富-ky 公告本公司集團間資金貸與達「公開發行公司資金貸與
+及背書保證處理準則」第22條第1項第1款相關事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10075,7 +10186,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司集團間資金貸與達「公開發行公司資金貸與
+              <summary>公告本公司集團間資金貸與達「公開發行公司資金貸與
 及背書保證處理準則」第22條第1項第1款相關事宜</summary>
               <div class="full-reason">
                 （第23款）<br>
@@ -10107,7 +10218,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4745 合富-ky 公告本公司集團間資金貸與達「公開發行公司資金貸與
+及背書保證處理準則」第22條第1項第3款相關事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10118,7 +10230,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司集團間資金貸與達「公開發行公司資金貸與
+              <summary>公告本公司集團間資金貸與達「公開發行公司資金貸與
 及背書保證處理準則」第22條第1項第3款相關事宜</summary>
               <div class="full-reason">
                 （第23款）<br>
@@ -10166,7 +10278,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4745 合富-ky 公告本公司董事會通過114年度第二季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10204,7 +10316,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4745 合富-ky 公告本公司董事會決議庫藏股註銷減資事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10241,7 +10353,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4745 合富-ky 公告本公司董事會通過對關係人捐贈事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10274,7 +10386,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4747 強生製藥 公告本公司股票面額由「新台幣10元」變更為「新台幣5元」
+公告期間：115年7月22日至115年10月21日">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10285,7 +10398,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司股票面額由「新台幣10元」變更為「新台幣5元」
+              <summary>公告本公司股票面額由「新台幣10元」變更為「新台幣5元」
 公告期間：115年7月22日至115年10月21日</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -10312,7 +10425,8 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4804 大略-ky 公告本公司於115年8月26日召開投資人可參與之
+重大訊息說明記者會">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10323,7 +10437,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司於115年8月26日召開投資人可參與之
+              <summary>公告本公司於115年8月26日召開投資人可參與之
 重大訊息說明記者會</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -10347,7 +10461,7 @@ P47   115年6月30日 應收帳款: 新增 Bourns,Inc.  338,756仟元<br>
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4804 大略-ky 公告本公司召開重大訊息說明記者會內容">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10481,7 +10595,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4804 大略-ky 公告繼續停止本公司有價證券在證券商營業處所買賣">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10525,7 +10639,9 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4953 緯致 公告本公司名稱由「緯創軟體股份有限公司」
+更名為「緯致科技股份有限公司」，
+公告期間：115年6月2日至115年9月1日。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10536,8 +10652,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司名稱由「緯創軟體股份有限公司」
-更名為「緯致科技股份有限公司」，
+              <summary>公告本公司名稱由「緯創軟體股份有限公司」
+更名為「緯致科技股份有限公司」，
 公告期間：115年6月2日至115年9月1日。</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -10566,7 +10682,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4971 iet-ky 公告本公司董事會通過2026年第2季合併財務報告">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10604,7 +10720,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="4979 華星光 本公司有價證券達公布注意交易資訊標準，故公布相關
+訊息，以利投資人區別瞭解。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10615,7 +10732,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司有價證券達公布注意交易資訊標準，故公布相關
+              <summary>本公司有價證券達公布注意交易資訊標準，故公布相關
 訊息，以利投資人區別瞭解。</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -10671,7 +10788,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5228 鈺鎧 公告本公司召開法人說明會相關事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10702,7 +10819,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5301 寶得利 公告本公司減資已完成資本額變更登記事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10740,7 +10857,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5386 青雲 本公司董事辭職_補充說明">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10786,7 +10903,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5426 振發 公告修正本公司114年度股東會年報部分內容">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10825,7 +10942,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5536 聖暉* 本公司代重要子公司聖暉系統集成集團股份有限公司公告董
+事會決議2026年上半年度股利分配">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10836,7 +10954,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司代重要子公司聖暉系統集成集團股份有限公司公告董
+              <summary>本公司代重要子公司聖暉系統集成集團股份有限公司公告董
 事會決議2026年上半年度股利分配</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -10852,7 +10970,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5904 寶雅* 公告本公司股票面額變更由「新台幣10元」變更為「新台幣1元」
+公告期間：115年7月2日至115年10月1日">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10863,7 +10982,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司股票面額變更由「新台幣10元」變更為「新台幣1元」
+              <summary>公告本公司股票面額變更由「新台幣10元」變更為「新台幣1元」
 公告期間：115年7月2日至115年10月1日</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -10907,7 +11026,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="5904 寶雅* 本公司有價證券近期多次達公布注意交易資訊標準，
+故公告相關訊息，以利投資人區別暸解。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -10918,7 +11038,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司有價證券近期多次達公布注意交易資訊標準，
+              <summary>本公司有價證券近期多次達公布注意交易資訊標準，
 故公告相關訊息，以利投資人區別暸解。</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -10982,7 +11102,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6021 美好證 (更正)本公司董事會決議收回已發行之限制員工權利新股註銷">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11021,7 +11141,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6163 華電網 公告本公司115年第2季關係人交易申報數
+與會計師核閱數差異說明">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11032,7 +11153,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司115年第2季關係人交易申報數
+              <summary>公告本公司115年第2季關係人交易申報數
 與會計師核閱數差異說明</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -11060,7 +11181,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6167 久正 公告本公司現金減資辦理資本額變更登記完成。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11099,7 +11220,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6167 久正 公告本公司訂定減資換股基準日及換股作業計畫等相關事宜。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11187,7 +11308,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6187 萬潤 本公司受邀參加由證券櫃檯買賣中心舉辦之業績發表會，說明本公司財務及業務相關資訊。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11218,7 +11339,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6227 茂綸 公告本公司受邀參加統一證券舉辦之法人說明會。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11249,7 +11370,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6229 研通 公告本公司及子公司背書保證餘額達公開發行公司資金貨與及
+背書保證處理準則第二十五條第一項第一款。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11260,7 +11382,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司及子公司背書保證餘額達公開發行公司資金貨與及
+              <summary>公告本公司及子公司背書保證餘額達公開發行公司資金貨與及
 背書保證處理準則第二十五條第一項第一款。</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -11345,7 +11467,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6229 研通 本公司新增背書保證金額達公開發行公司資金貸與及背書保證處理
+準則第二十五條第一項第二款及第三款規定之公告">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11356,7 +11479,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>本公司新增背書保證金額達公開發行公司資金貸與及背書保證處理
+              <summary>本公司新增背書保證金額達公開發行公司資金貸與及背書保證處理
 準則第二十五條第一項第二款及第三款規定之公告</summary>
               <div class="full-reason">
                 （第22款）<br>
@@ -11406,7 +11529,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6233 旺玖 公告本公司限制員工權利新股註銷完成變更登記事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11443,7 +11566,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6499 益安 說明媒體報導內容">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11485,7 +11608,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6499 益安 本公司受邀參加台新證券舉辦之法人說明會">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11516,7 +11639,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6588 東典光電 代孫公司科沃斯先進股份有限公司公告
+向關係人取得不動產使用權資產">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11527,7 +11651,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代孫公司科沃斯先進股份有限公司公告
+              <summary>代孫公司科沃斯先進股份有限公司公告
 向關係人取得不動產使用權資產</summary>
               <div class="full-reason">
                 （第20款）<br>
@@ -11628,7 +11752,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6616 特昇-ky 代重要子公司techcential sdn. bhd.
+公告董事會決議發放股利事宜">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11639,7 +11764,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司Techcential Sdn. Bhd.
+              <summary>代重要子公司Techcential Sdn. Bhd.
 公告董事會決議發放股利事宜</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -11655,7 +11780,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6629 泰金-ky 公告本公司董事會通過115年第2季合併財務季報告">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11693,7 +11818,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="6720 久昌 公告本公司更換股務代理機構案經集保公司准予備查">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11731,7 +11856,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7556 意德士科技 代重要子公司大鐿先端科技(股)公司公告董事會重要決議
+內容">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11742,7 +11868,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司大鐿先端科技(股)公司公告董事會重要決議
+              <summary>代重要子公司大鐿先端科技(股)公司公告董事會重要決議
 內容</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -11767,7 +11893,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7556 意德士科技 代重要子公司大鐿先端科技(股)公司公告董事會決議
+115年上半年度盈餘分配案">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11778,7 +11905,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司大鐿先端科技(股)公司公告董事會決議
+              <summary>代重要子公司大鐿先端科技(股)公司公告董事會決議
 115年上半年度盈餘分配案</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -11794,7 +11921,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="7556 意德士科技 代重要子公司大鐿先端科技(股)公司公告115年上半年度
+盈餘分派除息基準日">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11805,7 +11933,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>代重要子公司大鐿先端科技(股)公司公告115年上半年度
+              <summary>代重要子公司大鐿先端科技(股)公司公告115年上半年度
 盈餘分派除息基準日</summary>
               <div class="full-reason">
                 （第14款）<br>
@@ -11831,7 +11959,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8077 洛碁 公告向關係人承租不動產，調降租金並修改使用權資產。">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11926,7 +12054,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8084 巨虹 公告本公司現金增資認股基準日及相關事宜
+(補充公告特定人股款繳納期間)">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -11937,7 +12066,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司現金增資認股基準日及相關事宜
+              <summary>公告本公司現金增資認股基準日及相關事宜
 (補充公告特定人股款繳納期間)</summary>
               <div class="full-reason">
                 （第11款）<br>
@@ -11992,7 +12121,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8096 擎亞 更正公告本公司國內第二次無擔保轉換公司債轉換價格調整">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12026,7 +12155,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8096 擎亞 更正公告本公司國內第三次無擔保轉換公司債轉換價格調整">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12060,7 +12189,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8435 鉅邁 公告本公司內部稽核主管異動">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12097,7 +12226,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8444 綠河-ky 公告本公司115年第2季合併財務報告業經董事會決議通過">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12135,7 +12264,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8444 綠河-ky 公告本公司董事會決議不分派股利">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12173,7 +12302,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8444 綠河-ky 本公司董事會委任薪資報酬委員會委員">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12207,7 +12336,9 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8472 納維康 公告本公司名稱由「夠麻吉股份有限公司」更名為
+「納維康生技股份有限公司」，公告期間：115年6月29日
+至115年9月28日">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12218,8 +12349,8 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           <td data-label="發言日期">2026/08/26</td>
           <td data-label="重大訊息">
             <details>
-              <summary>公告本公司名稱由「夠麻吉股份有限公司」更名為
-「納維康生技股份有限公司」，公告期間：115年6月29日
+              <summary>公告本公司名稱由「夠麻吉股份有限公司」更名為
+「納維康生技股份有限公司」，公告期間：115年6月29日
 至115年9月28日</summary>
               <div class="full-reason">
                 （第53款）<br>
@@ -12252,7 +12383,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8905 裕國 本公司接獲智慧財產及商業法院民事裁定">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12318,7 +12449,7 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
           </td>
         </tr>
         
-        <tr>
+        <tr data-search="8936 國統 公告本公司國內第六次無擔保轉換公司債收足價款">
           <td data-label="市場">
             
             <span class="badge badge-otc">上櫃</span>
@@ -12364,6 +12495,11 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
   <div class="date-query-bar">
     <label for="date-query-input">選擇日期：</label>
     <input type="date" id="date-query-input" value="2026-08-26" min="2026-08-08" max="2026-08-27">
+  </div>
+  <div class="keyword-search-bar">
+    <label for="bydate-search-input">關鍵字篩選：</label>
+    <input type="text" id="bydate-search-input" placeholder="例如：營收、新訂單、代號、名稱">
+    <span class="keyword-search-count" id="bydate-search-count"></span>
   </div>
   <table>
     <thead>
@@ -12497,16 +12633,31 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
     return tr;
   }
 
-  function renderMaterialForDate(iso) {
+  function materialMatchesKeyword(m, keyword) {
+    if (!keyword) return true;
+    var haystack = (m.code + " " + m.name + " " + m.subject).toLowerCase();
+    return haystack.indexOf(keyword) !== -1;
+  }
+
+  function renderMaterialForDate(iso, keyword) {
     var tbody = document.getElementById("date-query-tbody");
+    var countEl = document.getElementById("bydate-search-count");
     tbody.innerHTML = "";
-    var matches = MATERIAL_LOG.filter(function (m) { return m.announce_date_iso === iso; });
+    var dateMatches = MATERIAL_LOG.filter(function (m) { return m.announce_date_iso === iso; });
+    var matches = dateMatches.filter(function (m) { return materialMatchesKeyword(m, keyword); });
+
+    if (countEl) {
+      countEl.textContent = keyword ? "符合 " + matches.length + " / " + dateMatches.length + " 則" : "";
+    }
+
     if (matches.length === 0) {
       var tr = document.createElement("tr");
       tr.className = "empty-row";
       var td = document.createElement("td");
       td.colSpan = 6;
-      td.textContent = iso + " 無重大訊息資料（可能是非交易日，或早於系統開始收集資料的日子）";
+      td.textContent = dateMatches.length === 0
+        ? iso + " 無重大訊息資料（可能是非交易日，或早於系統開始收集資料的日子）"
+        : iso + " 沒有符合「" + keyword + "」的重大訊息";
       tr.appendChild(td);
       tbody.appendChild(tr);
       return;
@@ -12515,10 +12666,31 @@ A10.依目前可調取之客觀證據，可知悉水蓮天之出資額係遭水�
   }
 
   var dateInput = document.getElementById("date-query-input");
-  dateInput.addEventListener("change", function () {
-    renderMaterialForDate(dateInput.value);
-  });
-  renderMaterialForDate(dateInput.value);
+  var bydateSearchInput = document.getElementById("bydate-search-input");
+
+  function refreshDateQuery() {
+    renderMaterialForDate(dateInput.value, bydateSearchInput.value.trim().toLowerCase());
+  }
+
+  dateInput.addEventListener("change", refreshDateQuery);
+  bydateSearchInput.addEventListener("input", refreshDateQuery);
+  refreshDateQuery();
+
+  var stockinfoSearchInput = document.getElementById("stockinfo-search-input");
+  var stockinfoCountEl = document.getElementById("stockinfo-search-count");
+  if (stockinfoSearchInput) {
+    stockinfoSearchInput.addEventListener("input", function () {
+      var keyword = stockinfoSearchInput.value.trim().toLowerCase();
+      var rows = document.querySelectorAll("#stockinfo-tbody tr[data-search]");
+      var visibleCount = 0;
+      rows.forEach(function (row) {
+        var match = !keyword || row.getAttribute("data-search").indexOf(keyword) !== -1;
+        row.style.display = match ? "" : "none";
+        if (match) visibleCount++;
+      });
+      stockinfoCountEl.textContent = keyword ? "符合 " + visibleCount + " / " + rows.length + " 則" : "";
+    });
+  }
 </script>
 <script>
   function buildNewsLinkCard(source, url, desc) {
