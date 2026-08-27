@@ -169,6 +169,29 @@
     color-scheme: dark;
   }
 
+  .keyword-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .keyword-search-bar label { color: var(--text-dim); font-size: 0.9rem; }
+  .keyword-search-bar input[type="text"] {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    width: 220px;
+  }
+  .keyword-search-count {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+
   .news-query-bar {
     display: flex;
     align-items: center;
@@ -387,6 +410,11 @@
     新訂單、財報、營收公告…等），共 {{ material_count }} 則。與處置股清單彼此獨立、不限於
     處置股。（TWSE／TPEx 公佈完整批次的時間通常晚於本頁產出時間，因此不是固定顯示「今天」，
     而是資料庫裡最新一天實際有資料的日期。）</p>
+  <div class="keyword-search-bar">
+    <label for="stockinfo-search-input">關鍵字篩選：</label>
+    <input type="text" id="stockinfo-search-input" placeholder="例如：營收、新訂單、代號、名稱">
+    <span class="keyword-search-count" id="stockinfo-search-count"></span>
+  </div>
   <table>
     <thead>
       <tr>
@@ -398,10 +426,10 @@
         <th>相關連結</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="stockinfo-tbody">
       {% if material_infos %}
         {% for m in material_infos %}
-        <tr>
+        <tr data-search="{{ (m.code ~ ' ' ~ m.name ~ ' ' ~ m.subject) | lower }}">
           <td data-label="市場">
             {% if m.market == "上市" %}
             <span class="badge badge-listed">上市</span>
@@ -441,6 +469,11 @@
   <div class="date-query-bar">
     <label for="date-query-input">選擇日期：</label>
     <input type="date" id="date-query-input" value="{{ latest_material_date_iso }}" min="{{ min_date_iso }}" max="{{ today_iso }}">
+  </div>
+  <div class="keyword-search-bar">
+    <label for="bydate-search-input">關鍵字篩選：</label>
+    <input type="text" id="bydate-search-input" placeholder="例如：營收、新訂單、代號、名稱">
+    <span class="keyword-search-count" id="bydate-search-count"></span>
   </div>
   <table>
     <thead>
@@ -574,16 +607,31 @@
     return tr;
   }
 
-  function renderMaterialForDate(iso) {
+  function materialMatchesKeyword(m, keyword) {
+    if (!keyword) return true;
+    var haystack = (m.code + " " + m.name + " " + m.subject).toLowerCase();
+    return haystack.indexOf(keyword) !== -1;
+  }
+
+  function renderMaterialForDate(iso, keyword) {
     var tbody = document.getElementById("date-query-tbody");
+    var countEl = document.getElementById("bydate-search-count");
     tbody.innerHTML = "";
-    var matches = MATERIAL_LOG.filter(function (m) { return m.announce_date_iso === iso; });
+    var dateMatches = MATERIAL_LOG.filter(function (m) { return m.announce_date_iso === iso; });
+    var matches = dateMatches.filter(function (m) { return materialMatchesKeyword(m, keyword); });
+
+    if (countEl) {
+      countEl.textContent = keyword ? "符合 " + matches.length + " / " + dateMatches.length + " 則" : "";
+    }
+
     if (matches.length === 0) {
       var tr = document.createElement("tr");
       tr.className = "empty-row";
       var td = document.createElement("td");
       td.colSpan = 6;
-      td.textContent = iso + " 無重大訊息資料（可能是非交易日，或早於系統開始收集資料的日子）";
+      td.textContent = dateMatches.length === 0
+        ? iso + " 無重大訊息資料（可能是非交易日，或早於系統開始收集資料的日子）"
+        : iso + " 沒有符合「" + keyword + "」的重大訊息";
       tr.appendChild(td);
       tbody.appendChild(tr);
       return;
@@ -592,10 +640,31 @@
   }
 
   var dateInput = document.getElementById("date-query-input");
-  dateInput.addEventListener("change", function () {
-    renderMaterialForDate(dateInput.value);
-  });
-  renderMaterialForDate(dateInput.value);
+  var bydateSearchInput = document.getElementById("bydate-search-input");
+
+  function refreshDateQuery() {
+    renderMaterialForDate(dateInput.value, bydateSearchInput.value.trim().toLowerCase());
+  }
+
+  dateInput.addEventListener("change", refreshDateQuery);
+  bydateSearchInput.addEventListener("input", refreshDateQuery);
+  refreshDateQuery();
+
+  var stockinfoSearchInput = document.getElementById("stockinfo-search-input");
+  var stockinfoCountEl = document.getElementById("stockinfo-search-count");
+  if (stockinfoSearchInput) {
+    stockinfoSearchInput.addEventListener("input", function () {
+      var keyword = stockinfoSearchInput.value.trim().toLowerCase();
+      var rows = document.querySelectorAll("#stockinfo-tbody tr[data-search]");
+      var visibleCount = 0;
+      rows.forEach(function (row) {
+        var match = !keyword || row.getAttribute("data-search").indexOf(keyword) !== -1;
+        row.style.display = match ? "" : "none";
+        if (match) visibleCount++;
+      });
+      stockinfoCountEl.textContent = keyword ? "符合 " + visibleCount + " / " + rows.length + " 則" : "";
+    });
+  }
 </script>
 <script>
   function buildNewsLinkCard(source, url, desc) {
